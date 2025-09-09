@@ -1,0 +1,57 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-B0llUkq8.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/css/bootstrap.scss": {
+    "file": "assets/bootstrap-TBS6NbgQ.css",
+    "src": "resources/css/bootstrap.scss",
+    "isEntry": true,
+    "names": [
+      "bootstrap.css"
+    ]
+  },
+  "resources/css/filament/admin/theme.css": {
+    "file": "assets/theme-BTPd7MnL.css",
+    "src": "resources/css/filament/admin/theme.css",
+    "isEntry": true,
+    "names": [
+      "theme.css"
+    ]
+  },
+  "resources/images/FondoForm.webp": {
+    "file": "assets/FondoForm-5pkm9IMP.webp",
+    "src": "resources/images/FondoForm.webp"
+  },
+  "resources/images/banner-home.webp": {
+    "file": "assets/banner-home-BEvLQeLx.webp",
+    "src": "resources/images/banner-home.webp"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-C0G0cght.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/bootstrap-app.js": {
+    "file": "assets/bootstrap-app-DCcoZwG8.js",
+    "name": "bootstrap-app",
+    "src": "resources/js/bootstrap-app.js",
+    "isEntry": true,
+    "css": [
+      "assets/bootstrap-TBS6NbgQ.css"
+    ]
+  },
+  "resources/less/app.less": {
+    "file": "assets/app-CsZz7QmI.css",
+    "src": "resources/less/app.less",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  }
+}

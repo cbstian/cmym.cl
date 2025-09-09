@@ -1,0 +1,86 @@
+@import url('fonts.less');
+@import url('colors.less');
+
+body {
+    font-family: "Montserrat", sans-serif;
+}
+
+main {
+    padding-top: 115px;
+}
+
+.navbar {
+    a.nav-link {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        color: #fff;
+        font-size: 15px;
+        font-style: normal;
+        line-height: normal;
+        letter-spacing: 0.75px;
+    }
+
+    li.active {
+        background-color: @green;
+        color: #fff;
+        border-radius: 25px;
+    }
+}
+
+.btn.btn-primary-green {
+    border-radius: 27px;
+    background-color: @green;
+    border: none;
+    color: #FFF;
+    font-family: Montserrat;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    padding: 10px 30px;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: darken(@green, 10%);
+        color: #FFF;
+    }
+}
+
+.banner-home {
+
+    background-image: url(../images/banner-home.webp);
+    background-position: right;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: #fff;
+
+    h2 {
+        font-size: 38px;
+        color: @gray;
+    }
+
+    h1 {
+        font-size: 60px;
+        color: @green;
+    }
+
+    p {
+        color: @gray;
+    }
+}
+
+.container-form {
+    background-image: url(../images/FondoForm.webp);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.product {
+    img {
+        height: 300px;
+        object-fit: cover;
+        width: 100%;
+    }
+}
