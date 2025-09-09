@@ -1,4 +1,4 @@
-<div class="bg-white p-4 rounded-4 shadow">
+<div class="bg-white p-5 shadow">
     @if (session()->has('message'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('message') }}

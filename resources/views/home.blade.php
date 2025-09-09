@@ -107,7 +107,7 @@
 
 <div class="container-fluid container-form">
     <div class="container py-5">
-        <div class="row py-5">
+        <div class="row align-items-center py-5">
             <div class="col-md-6">
                 <p class="mb-4 text-yellow">M&M - Comercializadora e Importadora</p>
                 <h1 class="montserrat-900 mb-4 text-green text-uppercase">
