@@ -54,4 +54,9 @@ class AttributeResource extends Resource
             'edit' => EditAttribute::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 }

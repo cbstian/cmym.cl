@@ -1,0 +1,137 @@
+// About Us page styles
+.hero-section {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('path/to/hero-image.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-title {
+    color: white;
+    font-size: 3.5rem;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+}
+
+.green-text {
+    color: #4CAF50;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.feature-title {
+    color: #dc3545;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.feature-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.mission-section {
+    background-color: #343a40;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.mission-content {
+    position: relative;
+    z-index: 2;
+}
+
+.mission-shape {
+    position: absolute;
+    right: -100px;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: rgba(255,255,255,0.1);
+    transform: skewX(-15deg);
+}
+
+.vision-section {
+    background-color: #4CAF50;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.vision-content {
+    position: relative;
+    z-index: 2;
+}
+
+.vision-shape {
+    position: absolute;
+    left: -100px;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: rgba(255,255,255,0.1);
+    transform: skewX(15deg);
+}
+
+.values-section {
+    background-color: #d4d4aa;
+    position: relative;
+    overflow: hidden;
+}
+
+.values-content {
+    position: relative;
+    z-index: 2;
+}
+
+.values-shape {
+    position: absolute;
+    right: -100px;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: rgba(255,255,255,0.2);
+    transform: skewX(-15deg);
+}
+
+.section-icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .mission-shape,
+    .vision-shape,
+    .values-shape {
+        display: none;
+    }
+}

@@ -34,4 +34,18 @@ export default defineConfig({
             },
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                assetFileNames: (assetInfo) => {
+                    // Keep font files in fonts directory
+                    if (assetInfo.name.endsWith('.woff2') || assetInfo.name.endsWith('.woff') ||
+                        assetInfo.name.endsWith('.ttf') || assetInfo.name.endsWith('.eot')) {
+                        return 'fonts/[name][extname]';
+                    }
+                    return 'assets/[name]-[hash][extname]';
+                }
+            }
+        }
+    }
 });

@@ -1,6 +1,7 @@
 <div class="bg-white p-5 shadow">
     @if (session()->has('message'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
             {{ session('message') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -73,7 +74,10 @@
             <button type="submit"
                     class="btn btn-primary-green text-white fw-bold py-3"
                     wire:loading.attr="disabled">
-                <span wire:loading.remove>Enviar mensaje</span>
+                <span wire:loading.remove>
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Enviar mensaje
+                </span>
                 <span wire:loading>
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Enviando...

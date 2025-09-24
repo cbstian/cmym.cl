@@ -10,13 +10,13 @@
                         <a href="{{ route('home') }}" class="text-white text-decoration-none montserrat-600">Inicio</a>
                     </li>
                     <li class="mb-3">
-                        <a href="{{ route('home') }}" class="text-white text-decoration-none montserrat-600">Nosotros</a>
+                        <a href="{{ route('about') }}" class="text-white text-decoration-none montserrat-600">Nosotros</a>
                     </li>
                     <li class="mb-3">
-                        <a href="{{ route('home') }}" class="text-white text-decoration-none montserrat-600">Productos</a>
+                        <a href="{{ route('products') }}" class="text-white text-decoration-none montserrat-600">Productos</a>
                     </li>
                     <li class="mb-3">
-                        <a href="{{ route('home') }}" class="text-white text-decoration-none montserrat-600">Contacto</a>
+                        <a href="{{ route('contact') }}" class="text-white text-decoration-none montserrat-600">Contacto</a>
                     </li>
                 </ul>
             </div>
@@ -24,11 +24,11 @@
                 <p class="fw-bold text-white">Vías de contacto</p>
                 <ul class="list-unstyled">
                     <li class="mb-3">
-                        <img src="{{ asset('images/phone.svg') }}" class="img-fluid">
+                        <i class="fa-solid fa-phone text-white"></i>
                         <a href="tel:+56951589643" class="text-white text-decoration-none">+56 9 5158 9643</a>
                     </li>
                     <li class="mb-3">
-                        <img src="{{ asset('images/mail.svg') }}" class="img-fluid">
+                        <i class="fa-solid fa-envelope text-white"></i>
                         <a href="mailto:cmym.spa@gmail.com" class="text-white text-decoration-none">cmym.spa@gmail.com</a>
                     </li>
                 </ul>
@@ -36,19 +36,22 @@
             <div class="col-md-3">
                 <p class="fw-bold text-white">Redes sociales</p>
                 <a href="https://wa.me/56951589643" target="_blank" class="text-decoration-none">
-                    <img src="{{ asset('images/whatsapp.svg') }}" class="img-fluid me-2">
+                    <!--<img src="{{ asset('images/whatsapp.svg') }}" class="img-fluid me-2">-->
+                    <i class="fa-brands fa-whatsapp text-white fa-3x me-3"></i>
                 </a>
                 <a href="#" target="_blank" class="text-decoration-none">
-                    <img src="{{ asset('images/facebook.svg') }}" class="img-fluid me-2">
+                    <!--<img src="{{ asset('images/facebook.svg') }}" class="img-fluid me-2">-->
+                    <i class="fa-brands fa-facebook text-white fa-3x me-3"></i>
                 </a>
-                <a href="#" target="_blank" class="text-decoration-none">
-                    <img src="{{ asset('images/instagram.svg') }}" class="img-fluid me-2">
+                <a href="https://www.instagram.com/cmym.spa" target="_blank" class="text-decoration-none">
+                    <!--<img src="{{ asset('images/instagram.svg') }}" class="img-fluid me-2">-->
+                    <i class="fa-brands fa-instagram text-white fa-3x me-3"></i>
                 </a>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12 text-center">
-                <p class="text-white font-size-14">© 2025 Cybersecurity Compliance Solutions (CCS). Todos los derechos reservados.</p>
+                <p class="text-white font-size-14">© 2025 Comercializadora e Importadora M&M. Todos los derechos reservados.</p>
             </div>
         </div>
     </div>

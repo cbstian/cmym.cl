@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Faqs\Schemas;
 
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class FaqForm
@@ -12,21 +13,19 @@ class FaqForm
     {
         return $schema
             ->components([
-                TextInput::make('title')
-                    ->label('Título')
-                    ->required()
-                    ->maxLength(255),
+                Section::make('Datos')
+                    ->columnSpan(2)
+                    ->schema([
+                        TextInput::make('title')
+                            ->label('Título')
+                            ->required()
+                            ->maxLength(255),
 
-                Textarea::make('text')
-                    ->label('Texto')
-                    ->required()
-                    ->rows(5),
-
-                TextInput::make('sort')
-                    ->label('Orden')
-                    ->numeric()
-                    ->default(0)
-                    ->required(),
+                        Textarea::make('text')
+                            ->label('Texto')
+                            ->required()
+                            ->rows(5),
+                    ]),
             ]);
     }
 }

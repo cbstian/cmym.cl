@@ -13,13 +13,13 @@
                         <a class="nav-link" aria-current="page" href="{{ route('home') }}">Inicio</a>
                     </li>
                     <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('quienes-somos') ) active @endif">
-                        <a class="nav-link" aria-current="page" href="{{ route('home') }}">Nosotros</a>
+                        <a class="nav-link" aria-current="page" href="{{ route('about') }}">Nosotros</a>
                     </li>
-                    <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('quienes-somos') ) active @endif">
-                        <a class="nav-link" aria-current="page" href="{{ route('home') }}">Productos</a>
+                    <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('productos*') ) active @endif">
+                        <a class="nav-link" aria-current="page" href="{{ route('products') }}">Productos</a>
                     </li>
-                    <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('posters') ) active @endif">
-                        <a class="nav-link" aria-current="page" href="{{ route('home') }}">Contacto</a>
+                    <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('contacto') ) active @endif">
+                        <a class="nav-link" aria-current="page" href="{{ route('contact') }}">Contacto</a>
                     </li>
                     <li class="nav-item px-3">
                         <a class="nav-link p-0" aria-current="page" href="{{ route('home') }}">

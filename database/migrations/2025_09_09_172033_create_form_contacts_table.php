@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('telefono')->nullable();
             $table->string('direccion')->nullable();
             $table->text('mensaje');
+            $table->boolean('reviewed')->default(false);
             $table->timestamps();
         });
     }

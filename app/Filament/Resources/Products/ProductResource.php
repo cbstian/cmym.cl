@@ -49,7 +49,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            VariantsRelationManager::class,
+            // VariantsRelationManager::class,
         ];
     }
 
@@ -58,7 +58,7 @@ class ProductResource extends Resource
         return [
             'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
-            'view' => ViewProduct::route('/{record}'),
+            // 'view' => ViewProduct::route('/{record}'),
             'edit' => EditProduct::route('/{record}/edit'),
         ];
     }

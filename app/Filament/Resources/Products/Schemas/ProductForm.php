@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -17,7 +17,8 @@ class ProductForm
     {
         return $schema
             ->components([
-                Grid::make(2)
+                Grid::make(1)
+                    ->columnSpan(9)
                     ->schema([
                         Section::make('Información Básica')
                             ->schema([
@@ -26,20 +27,17 @@ class ProductForm
                                     ->required()
                                     ->maxLength(255)
                                     ->columnSpanFull(),
-                                Grid::make(2)
-                                    ->schema([
-                                        Select::make('category_id')
-                                            ->label('Categoría')
-                                            ->relationship('category', 'name')
-                                            ->required()
-                                            ->searchable()
-                                            ->preload(),
-                                        TextInput::make('sku')
-                                            ->label('SKU')
-                                            ->required()
-                                            ->unique(ignoreRecord: true)
-                                            ->maxLength(255),
-                                    ]),
+                                Select::make('category_id')
+                                    ->label('Categoría')
+                                    ->relationship('category', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload(),
+                                TextInput::make('sku')
+                                    ->label('SKU')
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
                                 TextInput::make('slug')
                                     ->label('Slug')
                                     ->required()
@@ -71,11 +69,8 @@ class ProductForm
                                     ->prefix('$')
                                     ->step(0.01),
                             ])
-                            ->columns(1),
-                    ]),
+                            ->columns(2),
 
-                Grid::make(2)
-                    ->schema([
                         Section::make('Detalles Físicos')
                             ->schema([
                                 TextInput::make('weight')
@@ -85,7 +80,34 @@ class ProductForm
                                 TextInput::make('dimensions')
                                     ->label('Dimensiones')
                                     ->helperText('Formato: Alto x Ancho x Profundidad (cm)'),
-                            ]),
+                            ])
+                            ->columns(2),
+
+                        Section::make('Imágenes')
+                            ->schema([
+                                FileUpload::make('image_primary_path')
+                                    ->label('Imagen principal')
+                                    ->image()
+                                    ->required()
+                                    ->directory('products')
+                                    ->visibility('public')
+                                    ->maxSize(5120),
+                                FileUpload::make('image_paths')
+                                    ->label('Imágenes adicionales')
+                                    ->image()
+                                    ->multiple()
+                                    ->directory('products')
+                                    ->visibility('public')
+                                    ->maxSize(5120)
+                                    ->maxFiles(10),
+                            ])
+                            ->columns(1)
+                            ->columnSpanFull(),
+                    ]),
+
+                Grid::make(1)
+                    ->columnSpan(3)
+                    ->schema([
 
                         Section::make('Estado')
                             ->schema([
@@ -97,27 +119,6 @@ class ProductForm
                                     ->default(false),
                             ]),
                     ]),
-
-                Section::make('Imágenes')
-                    ->schema([
-                        FileUpload::make('image_primary_path')
-                            ->label('Imagen principal')
-                            ->image()
-                            ->required()
-                            ->directory('products')
-                            ->visibility('public')
-                            ->maxSize(5120),
-                        FileUpload::make('image_paths')
-                            ->label('Imágenes adicionales')
-                            ->image()
-                            ->multiple()
-                            ->directory('products')
-                            ->visibility('public')
-                            ->maxSize(5120)
-                            ->maxFiles(10),
-                    ])
-                    ->columns(2)
-                    ->columnSpanFull(),
-            ]);
+            ])->columns(12);
     }
 }

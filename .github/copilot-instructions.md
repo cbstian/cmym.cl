@@ -1,25 +1,183 @@
+# CMYM.CL E-commerce Platform Instructions
+
+## Project Overview
+This is a Laravel 12 e-commerce application focused on Chilean market with comprehensive product management, order processing, and content management capabilities. The application uses a **hybrid frontend approach**: Bootstrap for public-facing pages with Livewire components, and Filament v4 for admin panel.
+
+## Architecture & Stack
+
+### Core Technologies
+- **PHP**: 8.4.12
+- **Laravel**: 12.28.1 (streamlined Laravel 11+ structure)
+- **Database**: MySQL with comprehensive e-commerce schema
+- **Frontend**: Hybrid approach - Bootstrap + Livewire for public, Filament for admin
+- **Testing**: Pest v3 with comprehensive feature tests
+- **Styling**: TailwindCSS v4 + Bootstrap v5 + Custom LESS
+- **Build Tools**: Vite with Laravel plugin
+
+### Key Package Versions
+- **Filament**: 4.0.8 (admin interface)
+- **Livewire**: 3.6.4 (interactive components) 
+- **Pest**: 3.8.4 (testing framework)
+- **TailwindCSS**: 4.1.13
+- **Laravel Pint**: 1.24.0 (code formatting)
+
+## Domain-Specific Architecture
+
+### E-commerce Data Model
+- **Products**: Full product catalog with variants, attributes, categories
+- **Product Variants**: SKU-based inventory system with attribute combinations
+- **Categories**: Hierarchical product categories with self-referencing parent_id
+- **Orders**: Complete order lifecycle (pending→confirmed→shipped→delivered→cancelled)
+- **Customers**: Extended from users with Chilean-specific fields (RUT validation)
+- **Geography**: Chilean regions/communes for shipping and billing addresses
+- **Inventory**: Stock movements tracking with reference types and audit trails
+
+### Frontend Architecture Patterns
+- **Public Routes**: Traditional Blade views in `resources/views/` (home, products, product-single, contact, about-us)
+- **Master Layout**: `resources/views/layout/master.blade.php` with Bootstrap-based styling
+- **Livewire Components**: Interactive functionality in `app/Livewire/` (ProductGrid, ContactForm, FaqList)
+- **Asset Strategy**: Multiple entry points in Vite config for different concerns (Bootstrap, TailwindCSS, LESS, Filament)
+
+### Admin Interface (Filament v4)
+- **Resources**: CRUD interfaces in `app/Filament/Resources/` with organized subdirectories (Products/, Faqs/, etc.)
+- **Custom Schemas**: Form and table definitions in dedicated schema files (e.g., `ProductForm`, `ProductsTable`)
+- **Relation Managers**: Product variants managed through relation managers
+- **File Organization**: Group by domain (Products/ProductResource.php, Products/Pages/, Products/Schemas/)
+
+### Key Business Logic Patterns
+
+#### Automatic Slug Generation (Products)
+```php
+protected static function booted(): void
+{
+    static::creating(function (Product $product) {
+        if (empty($product->slug) && !empty($product->name)) {
+            $product->slug = static::generateUniqueSlug($product->name);
+        }
+    });
+}
+```
+
+#### Laravel 12 Casts Pattern
+```php
+protected function casts(): array
+{
+    return [
+        'image_paths' => 'array',
+        'price' => 'decimal:2',
+        'is_active' => 'boolean',
+    ];
+}
+```
+
+## Development Workflows
+
+### Testing Strategy (Pest v3)
+- **Feature Tests**: Comprehensive coverage in `tests/Feature/` 
+- **Key Test Patterns**: ProductSlugTest, ProductResourceTest, FormContactResourceTest
+- **Database**: Uses `RefreshDatabase` trait consistently
+- **Factories**: Product, Category, User, FormContact factories available
+- **Run Commands**: `php artisan test --filter=ProductSlug` for targeted testing
+
+### Asset Development
+```bash
+# Development with hot reload
+npm run dev
+
+# Production build
+npm run build
+
+# Format PHP code (required before commits)
+vendor/bin/pint --dirty
+```
+
+### Artisan Commands
+- Use `php artisan make:livewire NameSpace\\Component` for Livewire components
+- Use Filament-specific commands for admin resources: `php artisan make:filament-resource ProductResource`
+- Always pass `--no-interaction` flag in scripts
+
+## Project-Specific Conventions
+
+### Routing Patterns
+- **Simple Routes**: Product display uses closure routes in `routes/web.php`
+- **Named Routes**: All routes have semantic names (home, products, product.show, contact, about)
+- **Route Model Binding**: Products resolved by slug with `where('slug', $slug)->firstOrFail()`
+
+### Model Relationships
+- Products have category relationship: `belongsTo(Category::class)`
+- Categories are self-referencing: `parent_id` for hierarchy
+- Product variants belong to products with attribute pivot tables
+- Chilean geography: regions → communes relationship for addresses
+
+### File Upload Strategy
+- Product images stored as `image_primary_path` (string) and `image_paths` (JSON array)
+- File handling through Filament's file upload components
+
+### Frontend Component Patterns
+```php
+// Livewire components support configuration
+public function mount($perPage = 8, $showTitle = true)
+{
+    $this->perPage = $perPage;
+    $this->showTitle = $showTitle;
+}
+```
+
+### Database Schema Notes
+- Uses `soft_deletes` for products (deleted_at column)
+- JSON columns for flexible data: `image_paths`, `variant_attributes_json`
+- Unique constraints on slugs and SKUs
+- Chilean-specific enum for gender, order status, payment methods
+
+## Critical Integration Points
+
+### Vite Configuration
+Multiple entry points for different concerns:
+```javascript
+laravel({
+    input: [
+        'resources/css/app.css',        // TailwindCSS
+        'resources/js/app.js',
+        'resources/js/bootstrap-app.js', // Bootstrap frontend
+        'resources/less/app.less',       // Custom styles
+        'resources/css/filament/admin/theme.css' // Admin theme
+    ]
+})
+```
+
+### Bootstrap vs TailwindCSS Usage
+- **Bootstrap**: Primary styling framework for public-facing pages
+- **TailwindCSS**: Used in Filament admin interface and specific components
+- **LESS**: Custom styling overrides and project-specific styles
+
+## Debugging & Development Tools
+
+### Laravel Boost MCP Tools Available
+- `mcp_laravel-boost_application-info`: Get package versions and model list
+- `mcp_laravel-boost_database-schema`: Inspect full database schema
+- `mcp_laravel-boost_database-query`: Run read-only SQL queries
+- `mcp_laravel-boost_tinker`: Execute PHP code in Laravel context
+- `mcp_laravel-boost_search-docs`: Version-specific Laravel ecosystem documentation
+
+### Common Development Commands
+```bash
+# Run specific test suite
+php artisan test tests/Feature/ProductSlugTest.php
+
+# Format code before commits
+vendor/bin/pint --dirty
+
+# Asset compilation
+npm run build  # Production
+npm run dev    # Development with watching
+```
+
+### Error Investigation
+- Check `storage/logs/laravel.log` for application errors
+- Use `mcp_laravel-boost_last-error` to see recent backend errors
+- Use `mcp_laravel-boost_browser-logs` for frontend debugging
+
 <laravel-boost-guidelines>
-=== foundation rules ===
-
-# Laravel Boost Guidelines
-
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to enhance the user's satisfaction building Laravel applications.
-
-## Foundational Context
-This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
-
-- php - 8.2.28
-- filament/filament (FILAMENT) - v4
-- laravel/framework (LARAVEL) - v12
-- laravel/prompts (PROMPTS) - v0
-- livewire/livewire (LIVEWIRE) - v3
-- laravel/pint (PINT) - v1
-- laravel/sail (SAIL) - v1
-- pestphp/pest (PEST) - v3
-- phpunit/phpunit (PHPUNIT) - v11
-- tailwindcss (TAILWINDCSS) - v4
-
-
 ## Conventions
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.

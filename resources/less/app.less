@@ -1,5 +1,7 @@
 @import url('fonts.less');
 @import url('colors.less');
+@import url('product.less');
+@import url('section-about-us.less');
 
 body {
     font-family: "Montserrat", sans-serif;
@@ -47,6 +49,26 @@ main {
     }
 }
 
+.btn.btn-outline-green {
+    border-radius: 25px;
+    background-color: transparent;
+    border: 2px solid @green;
+    color: @green;
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    padding: 8px 24px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: @green;
+        color: #FFF;
+        border-color: @green;
+    }
+}
+
 .banner-home {
 
     background-image: url(../images/banner-home.webp);
@@ -75,12 +97,4 @@ main {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-}
-
-.product {
-    img {
-        height: 300px;
-        object-fit: cover;
-        width: 100%;
-    }
 }

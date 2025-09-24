@@ -21,13 +21,15 @@
                     Encuentra sillas, mesas y la mejor iluminación.<br>
                     La terraza de tus sueños al alcance de un clic.
                 </p>
-                <a href="" class="btn btn-primary-green text-white montserrat-600">Ver más</a>
+                <a href="{{ route('products') }}" class="btn btn-primary-green text-white montserrat-600">
+                    <i class="fas fa-eye me-2"></i>Ver más
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-@livewire('product-grid')
+@livewire('product-grid', ['perPage' => 6, 'showTitle' => true])
 
 <div class="container-fluid bg-beige">
     <div class="container">
@@ -40,10 +42,10 @@
                     Encuentra sillas, mesas y la mejor iluminación. La terraza de<br>
                     tus sueños al alcance de un clic.
                 </p>
-                <ul class="font-size-18">
-                    <li>Entrega a domicilio</li>
-                    <li>Acompañamiento completo</li>
-                    <li>Confiables y cumplidores</li>
+                <ul class="font-size-18 list-unstyled">
+                    <li class="mb-2"><i class="fas fa-truck text-success me-2"></i>Entrega a domicilio</li>
+                    <li class="mb-2"><i class="fas fa-hands-helping text-success me-2"></i>Acompañamiento completo</li>
+                    <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Confiables y cumplidores</li>
                 </ul>
             </div>
             <div class="col-md-6 px-0 text-start">
@@ -118,6 +120,12 @@
                     <b>Inspírate, sueña en grande y déjanos ayudarte a hacerlo realidad.</b><br>
                     Completa el formulario y comienza hoy tu transformación.
                 </p>
+                <div class="mt-4">
+                    <a href="{{ route('contact') }}" class="btn btn-outline-light">
+                        <i class="fas fa-phone me-2"></i>
+                        Ver más formas de contacto
+                    </a>
+                </div>
             </div>
             <div class="col-md-6">
                 @livewire('contact-form')

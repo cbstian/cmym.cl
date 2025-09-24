@@ -1,6 +1,22 @@
 {
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
+    "file": "fonts/fa-brands-400.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": {
+    "file": "fonts/fa-regular-400.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": {
+    "file": "fonts/fa-solid-900.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2": {
+    "file": "fonts/fa-v4compatibility.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-B0llUkq8.css",
+    "file": "assets/app-QYRbk1dT.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -8,7 +24,7 @@
     ]
   },
   "resources/css/bootstrap.scss": {
-    "file": "assets/bootstrap-TBS6NbgQ.css",
+    "file": "assets/bootstrap-Dq_oi5OS.css",
     "src": "resources/css/bootstrap.scss",
     "isEntry": true,
     "names": [
@@ -16,7 +32,7 @@
     ]
   },
   "resources/css/filament/admin/theme.css": {
-    "file": "assets/theme-BTPd7MnL.css",
+    "file": "assets/theme-DF_w8L7g.css",
     "src": "resources/css/filament/admin/theme.css",
     "isEntry": true,
     "names": [
@@ -32,22 +48,28 @@
     "src": "resources/images/banner-home.webp"
   },
   "resources/js/app.js": {
-    "file": "assets/app-C0G0cght.js",
+    "file": "assets/app-Bj43h_rG.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
   },
   "resources/js/bootstrap-app.js": {
-    "file": "assets/bootstrap-app-DCcoZwG8.js",
+    "file": "assets/bootstrap-app-DSc6vrqL.js",
     "name": "bootstrap-app",
     "src": "resources/js/bootstrap-app.js",
     "isEntry": true,
     "css": [
-      "assets/bootstrap-TBS6NbgQ.css"
+      "assets/bootstrap-Dq_oi5OS.css"
+    ],
+    "assets": [
+      "fonts/fa-brands-400.woff2",
+      "fonts/fa-regular-400.woff2",
+      "fonts/fa-solid-900.woff2",
+      "fonts/fa-v4compatibility.woff2"
     ]
   },
   "resources/less/app.less": {
-    "file": "assets/app-CsZz7QmI.css",
+    "file": "assets/app-CsPxIO9j.css",
     "src": "resources/less/app.less",
     "isEntry": true,
     "names": [

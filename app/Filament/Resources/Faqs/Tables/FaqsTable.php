@@ -27,12 +27,9 @@ class FaqsTable
                         if (strlen($state) <= 50) {
                             return null;
                         }
+
                         return $state;
                     }),
-
-                TextColumn::make('sort')
-                    ->label('Orden')
-                    ->sortable(),
 
                 TextColumn::make('created_at')
                     ->label('Creado')
@@ -46,6 +43,8 @@ class FaqsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->reorderable('sort')
+            ->defaultSort('sort')
             ->filters([
                 //
             ])
