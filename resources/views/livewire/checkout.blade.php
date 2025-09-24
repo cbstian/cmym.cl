@@ -284,6 +284,100 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Método de pago --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Método de Pago
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {{-- Webpay Plus --}}
+                        <div class="col-12 mb-3">
+                            <div class="form-check payment-method-option">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="payment_method"
+                                       id="webpay"
+                                       value="webpay"
+                                       wire:model="payment_method">
+                                <label class="form-check-label d-flex align-items-center" for="webpay">
+                                    <div class="payment-method-info">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ asset('images/webpay-logo.png') }}"
+                                                 alt="Webpay Plus"
+                                                 class="payment-logo me-3"
+                                                 onerror="this.style.display='none'"
+                                                 style="height: 30px;">
+                                            <div>
+                                                <strong>Webpay Plus</strong>
+                                                <div class="text-muted small">Tarjetas de crédito y débito</div>
+                                            </div>
+                                        </div>
+                                        <div class="payment-cards mt-2">
+                                            <i class="fab fa-cc-visa text-primary me-1" title="Visa"></i>
+                                            <i class="fab fa-cc-mastercard text-warning me-1" title="Mastercard"></i>
+                                            <i class="fas fa-credit-card text-info me-1" title="Débito"></i>
+                                            <span class="badge bg-success ms-2">
+                                                <i class="fas fa-shield-alt me-1"></i>Seguro
+                                            </span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Transferencia Bancaria --}}
+                        <div class="col-12 mb-3">
+                            <div class="form-check payment-method-option">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="payment_method"
+                                       id="transfer"
+                                       value="transfer"
+                                       wire:model="payment_method">
+                                <label class="form-check-label d-flex align-items-center" for="transfer">
+                                    <div class="payment-method-info">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-university text-primary me-3" style="font-size: 1.5rem;"></i>
+                                            <div>
+                                                <strong>Transferencia Bancaria</strong>
+                                                <div class="text-muted small">Pago manual via transferencia</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Validación manual
+                                            </span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    @error('payment_method')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    {{-- Información adicional según método seleccionado --}}
+                    @if($payment_method === 'webpay')
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Serás redirigido a la plataforma segura de Webpay Plus para completar tu pago.
+                        </div>
+                    @elseif($payment_method === 'transfer')
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Recibirás los datos bancarios por email para realizar la transferencia.
+                            Tu pedido será procesado una vez confirmemos el pago.
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         {{-- Resumen del pedido --}}
@@ -347,11 +441,6 @@
                                         <span class="total-value">${{ number_format($shipping_cost, 0, ',', '.') }}</span>
                                     </div>
                                 @endif
-
-                                <div class="total-row">
-                                    <span class="total-label">IVA (19%):</span>
-                                    <span class="total-value">${{ number_format($tax_amount, 0, ',', '.') }}</span>
-                                </div>
 
                                 <div class="total-row">
                                     <span class="total-label">Total:</span>

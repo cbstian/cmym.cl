@@ -64,6 +64,10 @@ class Checkout extends Component
     #[Validate('nullable|string|max:500')]
     public $order_notes = '';
 
+    // Método de pago
+    #[Validate('required|in:webpay,transfer')]
+    public $payment_method = 'webpay';
+
     // Datos para el componente
     public $cartItems = [];
 
@@ -76,8 +80,6 @@ class Checkout extends Component
     public $subtotal = 0;
 
     public $shipping_cost = 0;
-
-    public $tax_amount = 0;
 
     public $total = 0;
 
@@ -206,13 +208,12 @@ class Checkout extends Component
                     'customer_id' => $customer->id,
                     'status' => 'pending',
                     'subtotal' => $this->subtotal,
-                    'tax_amount' => $this->tax_amount,
                     'shipping_cost' => $this->shipping_cost,
                     'discount_amount' => 0,
                     'total_amount' => $this->total,
                     'currency' => 'CLP',
                     'payment_status' => 'pending',
-                    'payment_method' => null,
+                    'payment_method' => $this->payment_method,
                     'billing_address_id' => $billingAddress->id,
                     'shipping_address_id' => $shippingAddress->id,
                     'notes' => $this->order_notes,
@@ -241,11 +242,15 @@ class Checkout extends Component
                 // Limpiar el carrito
                 $this->clearCart();
 
-                session()->flash('success', 'Tu pedido ha sido creado exitosamente. Número de orden: '.$order->order_number);
-
-                // En el futuro, aquí se redirigirá al procesamiento de pago
-                // Por ahora, redirigimos a una página de confirmación o inicio
-                $this->redirect(route('home'), navigate: true);
+                // Procesar según el método de pago
+                if ($this->payment_method === 'webpay') {
+                    // Redirigir al proceso de pago con Webpay
+                    $this->redirect(route('payment.webpay.init', $order), navigate: false);
+                } else {
+                    // Para transferencia bancaria, mostrar instrucciones
+                    session()->flash('success', 'Tu pedido ha sido creado exitosamente. Número de orden: '.$order->order_number.' - Recibirás las instrucciones de pago por email.');
+                    $this->redirect(route('home'), navigate: true);
+                }
             });
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -303,10 +308,8 @@ class Checkout extends Component
         // Calcular costo de envío basado en región (ejemplo simple)
         $this->shipping_cost = $this->calculateShippingCost();
 
-        // Calcular IVA (19% en Chile)
-        $this->tax_amount = ($this->subtotal + $this->shipping_cost) * 0.19;
-
-        $this->total = $this->subtotal + $this->shipping_cost + $this->tax_amount;
+        // Total sin impuestos (IVA incluido en precios)
+        $this->total = $this->subtotal + $this->shipping_cost;
     }
 
     private function calculateShippingCost(): float

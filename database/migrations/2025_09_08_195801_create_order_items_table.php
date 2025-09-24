@@ -15,11 +15,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products');
+
+            // Información del producto al momento de la compra
             $table->string('product_name');
             $table->string('product_sku');
+            $table->text('product_description')->nullable();
+            $table->string('product_image_path')->nullable();
+
+            // Cantidad y precios en pesos chilenos enteros
             $table->integer('quantity');
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_price', 10, 2);
+            $table->integer('unit_price'); // Precio unitario en pesos chilenos
+            $table->integer('total_price'); // Precio total en pesos chilenos
+
+            // Atributos del producto (color, talla, etc.)
+            $table->json('product_attributes')->nullable();
+
             $table->timestamps();
         });
     }

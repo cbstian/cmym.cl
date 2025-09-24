@@ -13,7 +13,9 @@ export default defineConfig({
                 'resources/js/bootstrap-app.js',
                 'resources/css/bootstrap.scss',
                 // Custom LESS styles
-                'resources/less/app.less'
+                'resources/less/app.less',
+                // Payment styles
+                'resources/css/payment.css'
             ],
             refresh: true,
         }),

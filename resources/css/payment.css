@@ -1,0 +1,103 @@
+/* Estilos para el proceso de pago */
+.payment-method-option {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.payment-method-option:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.payment-method-option .form-check-input:checked + .form-check-label {
+    color: #007bff;
+}
+
+.payment-method-option .form-check-input:checked ~ .payment-method-info {
+    background-color: #e7f3ff;
+}
+
+.payment-method-option .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.payment-logo {
+    max-height: 30px;
+    width: auto;
+}
+
+.payment-cards i {
+    font-size: 1.2rem;
+}
+
+.payment-method-info {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+/* Webpay redirect styles */
+.webpay-redirect-container {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Payment result pages */
+.payment-result-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-success-card {
+    border-left: 5px solid #28a745;
+}
+
+.payment-failed-card {
+    border-left: 5px solid #dc3545;
+}
+
+.payment-cancelled-card {
+    border-left: 5px solid #ffc107;
+}
+
+/* Loading states */
+.payment-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.payment-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .payment-method-option {
+        padding: 12px;
+    }
+
+    .payment-method-info {
+        padding: 5px;
+    }
+
+    .payment-logo {
+        max-height: 25px;
+    }
+}

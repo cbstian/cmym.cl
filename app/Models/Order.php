@@ -13,7 +13,6 @@ class Order extends Model
         'customer_id',
         'status',
         'subtotal',
-        'tax_amount',
         'shipping_cost',
         'discount_amount',
         'total_amount',
@@ -31,16 +30,54 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'subtotal' => 'decimal:2',
-            'tax_amount' => 'decimal:2',
-            'shipping_cost' => 'decimal:2',
-            'discount_amount' => 'decimal:2',
-            'total_amount' => 'decimal:2',
+            'subtotal' => 'integer',
+            'shipping_cost' => 'integer',
+            'discount_amount' => 'integer',
+            'total_amount' => 'integer',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            if (empty($order->order_number)) {
+                $order->order_number = 'ORD-'.date('Ymd').'-'.str_pad(
+                    (static::whereDate('created_at', today())->count() + 1),
+                    4, '0', STR_PAD_LEFT
+                );
+            }
+        });
+    }
+
+    // Estados de la orden
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_PROCESSING = 'processing';
+
+    public const STATUS_SHIPPED = 'shipped';
+
+    public const STATUS_DELIVERED = 'delivered';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    // Estados de pago
+    public const PAYMENT_STATUS_PENDING = 'pending';
+
+    public const PAYMENT_STATUS_PAID = 'paid';
+
+    public const PAYMENT_STATUS_FAILED = 'failed';
+
+    public const PAYMENT_STATUS_REFUNDED = 'refunded';
+
+    // Método para obtener el total en pesos chilenos para Transbank
+    public function getTotalForTransbank(): int
+    {
+        return (int) $this->total_amount;
+    }
+
+    // Relaciones
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

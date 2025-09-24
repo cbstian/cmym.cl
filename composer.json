@@ -10,7 +10,8 @@
         "binafy/laravel-cart": "^1.2",
         "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "transbank/transbank-sdk": "^5.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
