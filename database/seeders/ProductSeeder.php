@@ -54,19 +54,19 @@ class ProductSeeder extends Seeder
                 'image' => 'product-6-sample.jpg',
                 'precio' => 80000,
                 'categoria' => 'Toldos',
-            ]
+            ],
         ];
 
         foreach ($productos as $producto) {
             $category = Category::where('name', $producto['categoria'])->first();
 
-            if (!$category) {
+            if (! $category) {
                 continue; // Si no existe la categoría, saltar este producto
             }
 
             // Copiar imagen desde resources/images al disco público
-            $sourceImagePath = resource_path('images/' . $producto['image']);
-            $destinationPath = 'products/' . $producto['image'];
+            $sourceImagePath = resource_path('images/'.$producto['image']);
+            $destinationPath = 'products/'.$producto['image'];
 
             if (file_exists($sourceImagePath)) {
                 Storage::disk('public')->put($destinationPath, file_get_contents($sourceImagePath));
@@ -76,16 +76,17 @@ class ProductSeeder extends Seeder
                 'category_id' => $category->id,
                 'name' => $producto['nombre'],
                 'slug' => Str::slug($producto['nombre']),
-                'description' => 'Descripción del producto ' . strtolower($producto['nombre']),
+                'description' => 'Descripción del producto '.strtolower($producto['nombre']),
                 'short_description' => 'Descripción corta del producto',
-                'sku' => 'SKU' . str_pad(array_search($producto, $productos) + 1, 3, '0', STR_PAD_LEFT),
+                'sku' => 'SKU'.str_pad(array_search($producto, $productos) + 1, 3, '0', STR_PAD_LEFT),
                 'price' => $producto['precio'],
                 'sale_price' => null,
                 'weight' => rand(1, 10),
-                'dimensions' => rand(10, 50) . ' x ' . rand(10, 50) . ' x ' . rand(10, 50) . ' cm',
+                'dimensions' => rand(10, 50).' x '.rand(10, 50).' x '.rand(10, 50).' cm',
                 'is_active' => true,
                 'is_featured' => rand(0, 1) == 1,
                 'image_primary_path' => $destinationPath,
+                'stock_quantity' => rand(0, 100),
                 'image_paths' => [
                     $destinationPath,
                 ],

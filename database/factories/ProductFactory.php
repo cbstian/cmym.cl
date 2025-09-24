@@ -29,18 +29,14 @@ class ProductFactory extends Factory
             'price' => $price,
             'sale_price' => fake()->boolean(30) ? $price * 0.8 : null,
             'weight' => fake()->randomFloat(2, 0.1, 50),
-            'dimensions' => [
-                'height' => fake()->numberBetween(1, 100),
-                'width' => fake()->numberBetween(1, 100),
-                'depth' => fake()->numberBetween(1, 100),
-            ],
+            'dimensions' => fake()->numberBetween(10, 50).' x '.fake()->numberBetween(10, 50).' x '.fake()->numberBetween(10, 50).' cm',
             'is_active' => fake()->boolean(80),
             'is_featured' => fake()->boolean(20),
-            'image_primary_path' => 'products/' . fake()->uuid() . '.jpg',
+            'image_primary_path' => 'products/'.fake()->uuid().'.jpg',
             'image_paths' => [
-                'products/' . fake()->uuid() . '.jpg',
-                'products/' . fake()->uuid() . '.jpg',
-                'products/' . fake()->uuid() . '.jpg',
+                'products/'.fake()->uuid().'.jpg',
+                'products/'.fake()->uuid().'.jpg',
+                'products/'.fake()->uuid().'.jpg',
             ],
         ];
     }

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('sale_price', 10, 2)->nullable();
             $table->decimal('weight', 8, 2)->nullable();
             $table->string('dimensions')->nullable();
+            $table->integer('stock_quantity')->default(0);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->string('image_primary_path');

@@ -16,7 +16,6 @@ class Address extends Model
         'commune_id',
         'address_line_1',
         'address_line_2',
-        'postal_code',
         'is_default',
     ];
 

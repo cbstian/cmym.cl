@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Binafy\LaravelCart\Cartable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Product extends Model
+class Product extends Model implements Cartable
 {
     use HasFactory, SoftDeletes;
 
@@ -28,6 +29,7 @@ class Product extends Model
         'is_featured',
         'image_primary_path',
         'image_paths',
+        'stock_quantity',
     ];
 
     protected function casts(): array
@@ -95,8 +97,66 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function variants(): HasMany
+    public function attributes(): HasMany
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(Attribute::class);
+    }
+
+    /**
+     * Genera el mensaje de WhatsApp personalizado para este producto
+     */
+    public function getWhatsappMessage(): string
+    {
+        $productName = $this->name;
+        $productUrl = route('product.show', $this->slug);
+        $price = $this->sale_price && $this->sale_price < $this->price
+            ? number_format($this->sale_price, 0, ',', '.')
+            : number_format($this->price, 0, ',', '.');
+
+        $message = "🛍️ *Hola! Me interesa este producto:*\n\n";
+        $message .= "📦 *Producto:* {$productName}\n";
+        $message .= "💰 *Precio:* \${$price}\n";
+
+        if ($this->sku) {
+            $message .= "🔢 *SKU:* {$this->sku}\n";
+        }
+
+        if ($this->category) {
+            $message .= "🏷️ *Categoría:* {$this->category->name}\n";
+        }
+
+        $message .= "\n🌐 *Ver producto:* {$productUrl}\n\n";
+        $message .= '¿Podrías darme más información sobre disponibilidad y formas de pago? 😊';
+
+        return $message;
+    }
+
+    /**
+     * Genera la URL de WhatsApp con el mensaje personalizado
+     */
+    public function getWhatsappUrl(string $phoneNumber = '56951589643'): string
+    {
+        $message = $this->getWhatsappMessage();
+        $encodedMessage = urlencode($message);
+
+        return "https://wa.me/{$phoneNumber}?text={$encodedMessage}";
+    }
+
+    /**
+     * Obtiene el número de WhatsApp desde configuración o usa el por defecto
+     */
+    public static function getWhatsappPhoneNumber(): string
+    {
+        return config('app.whatsapp_phone', '56951589643');
+    }
+
+    /**
+     * Obtiene el precio del producto para el carrito
+     * Implementa la interfaz Cartable
+     */
+    public function getPrice(): float
+    {
+        // Devuelve el precio de oferta si está disponible, sino el precio regular
+        return $this->sale_price ?? $this->price;
     }
 }

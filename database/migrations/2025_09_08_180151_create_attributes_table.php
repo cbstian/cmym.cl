@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('attributes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->enum('type', ['color', 'size', 'model']);
             $table->boolean('is_required')->default(false);
-            $table->integer('sort_order')->default(0);
+            $table->integer('sort')->default(0);
+            $table->json('values')->nullable();
+            $table->foreignId('product_id')->constrained('products');
             $table->timestamps();
         });
     }

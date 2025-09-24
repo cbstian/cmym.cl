@@ -22,8 +22,6 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'birth_date',
-        'gender',
     ];
 
     /**
@@ -46,12 +44,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'birth_date' => 'date',
         ];
     }
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Customer::class);
+    }
+
+    public function carts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\Binafy\LaravelCart\Models\Cart::class);
     }
 }

@@ -94,7 +94,6 @@
 @endsection
 
 @section('pre_js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 @endsection
 
 @section('js')

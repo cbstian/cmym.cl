@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | WhatsApp Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the WhatsApp phone number that will be used for
+    | customer inquiries about products. The number should include the
+    | country code without the + sign.
+    |
+    */
+
+    'whatsapp_phone' => env('WHATSAPP_PHONE', '56951589643'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

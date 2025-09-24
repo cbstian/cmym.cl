@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('currency', 3)->default('CLP');
             $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
             $table->string('payment_method')->nullable();
-            $table->foreignId('shipping_method_id')->nullable()->constrained('shipping_methods');
             $table->foreignId('billing_address_id')->constrained('addresses');
             $table->foreignId('shipping_address_id')->constrained('addresses');
             $table->text('notes')->nullable();

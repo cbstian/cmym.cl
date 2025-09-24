@@ -3,27 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attribute extends Model
 {
     protected $fillable = [
         'name',
-        'slug',
-        'type',
         'is_required',
-        'sort_order',
+        'sort',
+        'values',
+        'product_id',
     ];
 
     protected function casts(): array
     {
         return [
             'is_required' => 'boolean',
+            'values' => 'array',
         ];
     }
 
-    public function attributeValues(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(AttributeValue::class);
+        return $this->belongsTo(Product::class);
     }
 }

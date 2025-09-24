@@ -46,16 +46,6 @@ class ProductVariant extends Model
         )->withPivot('attribute_id');
     }
 
-    public function stockMovements(): HasMany
-    {
-        return $this->hasMany(StockMovement::class);
-    }
-
-    public function cartItems(): HasMany
-    {
-        return $this->hasMany(CartItem::class);
-    }
-
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

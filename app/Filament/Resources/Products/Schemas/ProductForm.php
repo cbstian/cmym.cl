@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -38,12 +41,6 @@ class ProductForm
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255),
-                                TextInput::make('slug')
-                                    ->label('Slug')
-                                    ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->maxLength(255)
-                                    ->columnSpanFull(),
                                 Textarea::make('short_description')
                                     ->label('Descripción corta')
                                     ->rows(3)
@@ -88,7 +85,6 @@ class ProductForm
                                 FileUpload::make('image_primary_path')
                                     ->label('Imagen principal')
                                     ->image()
-                                    ->required()
                                     ->directory('products')
                                     ->visibility('public')
                                     ->maxSize(5120),
@@ -103,6 +99,46 @@ class ProductForm
                             ])
                             ->columns(1)
                             ->columnSpanFull(),
+
+                        Section::make('Atributos')
+                            ->schema([
+                                Repeater::make('attributes')
+                                    ->relationship()
+                                    ->label('Listado de atributos')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->label('Nombre')
+                                            ->required()
+                                            ->columnSpan(6)
+                                            ->maxLength(255),
+                                        Toggle::make('is_required')
+                                            ->label('Requerido')
+                                            ->inline(false)
+                                            ->columnSpan(6)
+                                            ->default(false),
+                                        TagsInput::make('values')
+                                            ->label('Valores')
+                                            ->columnSpan(12)
+                                            ->helperText('Ingrese los valores posibles para este atributo (ej: colores, tallas, etc.)')
+                                            ->placeholder('Presione Enter para agregar un valor'),
+                                    ])
+                                    ->columns(12)
+                                    ->defaultItems(0)
+                                    ->addAction(
+                                        fn (Action $action) => $action->label('Agregar atributo')
+                                    )
+                                    ->deleteAction(
+                                        fn (Action $action) => $action->label('Eliminar')
+                                    )
+                                    ->reorderAction(
+                                        fn (Action $action) => $action->label('Reordenar')
+                                    )
+                                    ->collapsible()
+                                    ->orderColumn('sort')
+                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null),
+                            ])
+                            ->columnSpanFull()
+                            ->collapsible(),
                     ]),
 
                 Grid::make(1)

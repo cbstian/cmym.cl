@@ -21,7 +21,6 @@ return new class extends Migration
             $table->foreignId('commune_id')->constrained('communes');
             $table->string('address_line_1');
             $table->string('address_line_2')->nullable();
-            $table->string('postal_code')->nullable();
             $table->boolean('is_default')->default(false);
             $table->timestamps();
         });

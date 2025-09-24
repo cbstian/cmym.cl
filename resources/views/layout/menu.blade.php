@@ -21,9 +21,10 @@
                     <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('contacto') ) active @endif">
                         <a class="nav-link" aria-current="page" href="{{ route('contact') }}">Contacto</a>
                     </li>
-                    <li class="nav-item px-3">
-                        <a class="nav-link p-0" aria-current="page" href="{{ route('home') }}">
-                            <img src="{{ asset('images/cart-icon.svg') }}" class="img-fluid" style="max-height: 40px;" alt="Contacto">
+                    <li class="nav-item px-3 d-flex align-items-center position-relative">
+                        <a class="nav-link p-0" aria-current="page" href="{{ route('cart') }}" title="Ver Carrito">
+                            <img src="{{ asset('images/cart-icon.svg') }}" class="img-fluid" style="max-height: 40px;" alt="Carrito">
+                            <livewire:cart.cart-counter />
                         </a>
                     </li>
                 </ul>

@@ -1,67 +1,293 @@
-.product {
-    img {
-        height: 300px;
-        object-fit: cover;
-        width: 100%;
+// ===============================
+// VARIABLES PARA PRODUCTOS
+// ===============================
+@primary-green: #44AD49;
+@primary-green-dark: #3a9640;
+@gray-light: #f8f9fa;
+@gray-medium: #e9ecef;
+@gray-dark: #6c757d;
+@gray-text: #999;
+@border-light: #dee2e6;
+@border-radius: 8px;
+@border-radius-small: 4px;
+@transition-base: all 0.3s ease;
+@shadow-hover: 0 10px 25px rgba(0,0,0,0.1);
+
+// ===============================
+// MIXINS
+// ===============================
+.transition(@property: all, @duration: 0.3s, @timing: ease) {
+    transition: @property @duration @timing;
+}
+
+.hover-lift(@distance: -5px) {
+    .transition(all, 0.3s, ease);
+
+    &:hover {
+        transform: translateY(@distance);
     }
 }
 
-.no-image-placeholder {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.image-base(@height, @fit: cover, @radius: 0px) {
+    height: @height;
+    object-fit: @fit;
+    width: 100%;
+    border-radius: @radius;
+}
+
+.flex-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6c757d;
+}
+
+.button-base(@bg-color, @border-color, @text-color: white) {
+    background-color: @bg-color;
+    border-color: @border-color;
+    color: @text-color;
+    .transition();
+
+    &:hover {
+        background-color: darken(@bg-color, 10%);
+        border-color: darken(@border-color, 10%);
+        color: @text-color;
+        transform: translateY(-1px);
+    }
+}
+
+// ===============================
+// COMPONENTES DE PRODUCTO
+// ===============================
+
+// Contenedor principal de productos
+.product {
+    img {
+        .image-base(300px, cover);
+    }
+}
+
+// Placeholder para imágenes faltantes
+.no-image-placeholder {
+    background: linear-gradient(135deg, @gray-light 0%, @gray-medium 100%);
+    .flex-center();
+    color: @gray-dark;
     font-size: 3rem;
     min-height: 300px;
 }
 
+// Cards de productos con hover
 .product-card-hover {
-    transition: all 0.3s ease;
+    .hover-lift();
     border: 1px solid transparent !important;
+
+    &:hover {
+        box-shadow: @shadow-hover !important;
+        border-color: @primary-green !important;
+    }
 }
 
-.product-card-hover:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-    border-color: #44AD49 !important;
-}
-
-.btn-primary-green {
-    background-color: #44AD49;
-    border-color: #44AD49;
-    transition: all 0.3s ease;
-}
-
-.btn-primary-green:hover {
-    background-color: #3a9640;
-    border-color: #3a9640;
-    transform: translateY(-1px);
-}
-
-.btn-outline-green {
-    color: #44AD49;
-    border-color: #44AD49;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-green:hover {
-    background-color: #44AD49;
-    border-color: #44AD49;
-    color: white;
-    transform: translateY(-1px);
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-    content: "›";
-    color: #6c757d;
-}
-
+// ===============================
+// GALERÍA DE PRODUCTO
+// ===============================
 .product-gallery {
     position: sticky;
     top: 20px;
 }
 
+// Imagen principal del producto
+.product-image {
+    &-main {
+        .image-base(500px, cover, @border-radius);
+        max-height: 500px;
+    }
+
+    &-cart {
+        .image-base(160px, cover, @border-radius-small);
+        max-height: 160px;
+    }
+
+    &-zoomable {
+        .transition(transform, 0.2s, ease);
+
+        &:hover {
+            transform: scale(1.02);
+        }
+    }
+
+    &-thumb {
+        .image-base(80px, cover, @border-radius-small);
+        cursor: pointer;
+        .transition();
+
+        &:hover {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+
+        &.active {
+            border: 3px solid @primary-green;
+        }
+    }
+}
+
+// ===============================
+// MODAL DE ZOOM DE IMAGEN
+// ===============================
+.modal-thumb {
+    .transition(border-color, 0.2s, ease);
+
+    &:hover {
+        border-color: @primary-green !important;
+        opacity: 0.8;
+    }
+
+    &.active-thumb {
+        border-color: @primary-green !important;
+    }
+}
+
+#productImageModal {
+    .modal-dialog {
+        max-width: 90vw;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        background: #fafafa;
+    }
+
+    .modal-footer {
+        background: white;
+        border-top: 1px solid @gray-medium;
+        padding: 1rem;
+
+        .d-flex {
+            overflow-x: auto;
+            padding-bottom: 5px;
+
+            &::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: @gray-light;
+                border-radius: 3px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: @primary-green;
+                border-radius: 3px;
+            }
+        }
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: @border-radius-small;
+    }
+}
+
+// ===============================
+// PRECIOS DE PRODUCTO
+// ===============================
+.product-price {
+    font-size: 2rem;
+    font-weight: 900;
+
+    &-sale {
+        color: @primary-green;
+    }
+
+    &-regular {
+        color: @gray-text;
+        text-decoration: line-through;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+}
+
+// ===============================
+// METADATOS Y TABS
+// ===============================
+.product-meta {
+    background: @gray-light;
+    border-radius: @border-radius;
+    padding: 20px;
+}
+
+.product-tabs {
+    border-bottom: 2px solid @gray-medium;
+
+    .nav-link {
+        color: @gray-dark;
+        border: none;
+        padding: 15px 20px;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        .transition();
+
+        &.active {
+            color: @primary-green;
+            background: none;
+            border-bottom-color: @primary-green;
+        }
+    }
+}
+
+// ===============================
+// CONTROLES DE CANTIDAD
+// ===============================
+.quantity-input {
+    width: 80px;
+    text-align: center;
+}
+
+.btn-quantity {
+    width: 35px;
+    height: 40px;
+    border: 1px solid @border-light;
+    background: white;
+    .flex-center();
+    .transition();
+
+    &:hover {
+        background: @gray-light;
+    }
+}
+
+// ===============================
+// BOTONES PERSONALIZADOS
+// ===============================
+.btn-primary-green {
+    .button-base(@primary-green, @primary-green);
+}
+
+.btn-outline-green {
+    background-color: transparent;
+    border-color: @primary-green;
+    color: @primary-green;
+    .transition();
+
+    &:hover {
+        background-color: @primary-green;
+        border-color: @primary-green;
+        color: white;
+        transform: translateY(-1px);
+    }
+}
+
+// ===============================
+// BREADCRUMB PERSONALIZADO
+// ===============================
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: @gray-dark;
+}
+
+// ===============================
+// RESPONSIVE DESIGN
+// ===============================
 @media (max-width: 768px) {
     .product-gallery {
         position: static;
@@ -74,4 +300,80 @@
     .quantity-input {
         width: 60px;
     }
+
+    .no-image-placeholder {
+        min-height: 200px;
+        font-size: 2rem;
+    }
+
+    .product-image-main {
+        max-height: 300px;
+    }
+
+    // Modal responsive en móviles
+    #productImageModal {
+        .modal-dialog {
+            max-width: 95vw;
+            margin: 0.5rem;
+        }
+
+        .modal-body {
+            padding: 0.5rem;
+
+            img {
+                max-height: 60vh;
+            }
+        }
+
+        .modal-footer {
+            padding: 0.5rem;
+
+            .modal-thumb {
+                width: 45px !important;
+                height: 45px !important;
+            }
+        }
+    }
+}
+
+// Responsive para tablets
+@media (max-width: 992px) {
+    .product-tabs .nav-link {
+        padding: 10px 15px;
+    }
+
+    .product-meta {
+        padding: 15px;
+    }
+
+    // Modal en tablets
+    #productImageModal {
+        .modal-dialog {
+            max-width: 85vw;
+        }
+
+        .modal-body img {
+            max-height: 70vh;
+        }
+
+        .modal-thumb {
+            width: 50px !important;
+            height: 50px !important;
+        }
+    }
+}
+
+// ===============================
+// UTILIDADES ADICIONALES
+// ===============================
+.text-green {
+    color: @primary-green;
+}
+
+.bg-green {
+    background-color: @primary-green;
+}
+
+.border-green {
+    border-color: @primary-green;
 }

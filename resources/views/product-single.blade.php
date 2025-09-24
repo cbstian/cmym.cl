@@ -7,89 +7,7 @@
 @endsection
 
 @section('css')
-<style>
-    .product-image-main {
-        max-height: 500px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
-    .product-image-thumb {
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .product-image-thumb:hover {
-        opacity: 0.7;
-        transform: scale(1.05);
-    }
-
-    .product-image-thumb.active {
-        border: 3px solid #44AD49;
-    }
-
-    .product-price {
-        font-size: 2rem;
-        font-weight: 900;
-    }
-
-    .product-price-sale {
-        color: #44AD49;
-    }
-
-    .product-price-regular {
-        color: #999;
-        text-decoration: line-through;
-        font-size: 1.4rem;
-        font-weight: 600;
-    }
-
-    .product-meta {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-    }
-
-    .product-tabs {
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .product-tabs .nav-link {
-        color: #6c757d;
-        border: none;
-        padding: 15px 20px;
-        font-weight: 600;
-        border-bottom: 3px solid transparent;
-    }
-
-    .product-tabs .nav-link.active {
-        color: #44AD49;
-        background: none;
-        border-bottom-color: #44AD49;
-    }
-
-    .quantity-input {
-        width: 80px;
-        text-align: center;
-    }
-
-    .btn-quantity {
-        width: 35px;
-        height: 40px;
-        border: 1px solid #dee2e6;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-quantity:hover {
-        background: #f8f9fa;
-    }
-</style>
+{{-- Todos los estilos ahora están centralizados en resources/less/product.less --}}
 @endsection
 
 @section('content')
@@ -131,8 +49,12 @@
                     <div class="mb-3">
                         <img id="mainProductImage"
                              src="{{ $product->image_primary_path ? asset('storage/' . $product->image_primary_path) : asset('images/no-image.png') }}"
-                             class="img-fluid w-100 product-image-main"
-                             alt="{{ $product->name }}">
+                             class="img-fluid w-100 product-image-main product-image-zoomable"
+                             alt="{{ $product->name }}"
+                             data-bs-toggle="modal"
+                             data-bs-target="#productImageModal"
+                             style="cursor: pointer;"
+                             title="Click para ampliar imagen">
                     </div>
 
                     {{-- Miniaturas --}}
@@ -195,38 +117,8 @@
                     </div>
                     @endif
 
-                    {{-- Formulario de Compra --}}
-                    <form class="product-form">
-                        <div class="row align-items-end mb-4">
-                            {{-- Cantidad --}}
-                            <div class="col-auto">
-                                <label for="quantity" class="form-label text-gray montserrat-600">Cantidad:</label>
-                                <div class="input-group">
-                                    <button type="button" class="btn btn-quantity" onclick="decreaseQuantity()">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1">
-                                    <button type="button" class="btn btn-quantity" onclick="increaseQuantity()">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {{-- Botón Agregar al Carrito --}}
-                            <div class="col">
-                                <button type="button" class="btn btn-primary-green text-white montserrat-600 w-100 py-3">
-                                    <i class="fas fa-shopping-cart me-2"></i>Agregar al carrito
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Botón Contactar --}}
-                        <div class="mb-4">
-                            <a href="{{ route('contact') }}" class="btn btn-outline-green w-100 py-3 montserrat-600">
-                                <i class="fas fa-comments me-2"></i>Consultar por WhatsApp
-                            </a>
-                        </div>
-                    </form>
+                    {{-- Formulario de Compra con Livewire --}}
+                    <livewire:cart.add-to-cart-button :product="$product" />
 
                     {{-- Información Adicional --}}
                     <div class="product-meta">
@@ -384,14 +276,55 @@
     </div>
 </div>
 
+{{-- Modal para Zoom de Imagen --}}
+<div class="modal fade" id="productImageModal" tabindex="-1" aria-labelledby="productImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productImageModalLabel">{{ $product->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center p-2">
+                <img id="modalProductImage"
+                     src="{{ $product->image_primary_path ? asset('storage/' . $product->image_primary_path) : asset('images/no-image.png') }}"
+                     class="img-fluid"
+                     alt="{{ $product->name }}"
+                     style="max-height: 80vh; width: auto;">
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div class="d-flex gap-2 flex-wrap">
+                    {{-- Thumbnail de imagen principal --}}
+                    <img src="{{ $product->image_primary_path ? asset('storage/' . $product->image_primary_path) : asset('images/no-image.png') }}"
+                         class="modal-thumb active-thumb"
+                         data-modal-image="{{ $product->image_primary_path ? asset('storage/' . $product->image_primary_path) : asset('images/no-image.png') }}"
+                         alt="{{ $product->name }}"
+                         style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border-radius: 4px; border: 2px solid #44AD49;">
+
+                    {{-- Thumbnails de imágenes adicionales --}}
+                    @if($product->image_paths && count($product->image_paths) > 0)
+                        @foreach($product->image_paths as $imagePath)
+                        <img src="{{ asset('storage/' . $imagePath) }}"
+                             class="modal-thumb"
+                             data-modal-image="{{ asset('storage/' . $imagePath) }}"
+                             alt="{{ $product->name }}"
+                             style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border-radius: 4px; border: 2px solid transparent;">
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
-    // Cambio de imagen principal
     document.addEventListener('DOMContentLoaded', function() {
+        // Cambio de imagen principal en la galería
         const thumbnails = document.querySelectorAll('.product-image-thumb');
         const mainImage = document.getElementById('mainProductImage');
+        const modalImage = document.getElementById('modalProductImage');
 
         thumbnails.forEach(thumb => {
             thumb.addEventListener('click', function() {
@@ -402,22 +335,73 @@
                 this.classList.add('active');
 
                 // Cambiar imagen principal
-                mainImage.src = this.dataset.image;
+                const newImageSrc = this.dataset.image;
+                mainImage.src = newImageSrc;
+
+                // También actualizar la imagen del modal
+                modalImage.src = newImageSrc;
             });
         });
+
+        // Funcionalidad del modal - thumbnails en el footer del modal
+        const modalThumbs = document.querySelectorAll('.modal-thumb');
+
+        modalThumbs.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                // Remover clase active-thumb de todos los thumbnails del modal
+                modalThumbs.forEach(t => {
+                    t.classList.remove('active-thumb');
+                    t.style.borderColor = 'transparent';
+                });
+
+                // Agregar clase active-thumb al thumbnail clickeado
+                this.classList.add('active-thumb');
+                this.style.borderColor = '#44AD49';
+
+                // Cambiar imagen en el modal
+                const newModalImageSrc = this.dataset.modalImage;
+                modalImage.src = newModalImageSrc;
+            });
+        });
+
+        // Sincronizar imagen del modal con la imagen principal cuando se abre el modal
+        const productImageModal = document.getElementById('productImageModal');
+        productImageModal.addEventListener('show.bs.modal', function() {
+            // Obtener la imagen actualmente mostrada
+            const currentMainImageSrc = mainImage.src;
+            modalImage.src = currentMainImageSrc;
+
+            // Sincronizar thumbnails del modal
+            modalThumbs.forEach(thumb => {
+                thumb.classList.remove('active-thumb');
+                thumb.style.borderColor = 'transparent';
+
+                if (thumb.dataset.modalImage === currentMainImageSrc) {
+                    thumb.classList.add('active-thumb');
+                    thumb.style.borderColor = '#44AD49';
+                }
+            });
+        });
+
+        // Navegación con teclado en el modal (flechas izquierda/derecha)
+        productImageModal.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+
+                const activeModalThumb = document.querySelector('.modal-thumb.active-thumb');
+                const allModalThumbs = Array.from(modalThumbs);
+                const currentIndex = allModalThumbs.indexOf(activeModalThumb);
+
+                let nextIndex;
+                if (e.key === 'ArrowLeft') {
+                    nextIndex = currentIndex > 0 ? currentIndex - 1 : allModalThumbs.length - 1;
+                } else {
+                    nextIndex = currentIndex < allModalThumbs.length - 1 ? currentIndex + 1 : 0;
+                }
+
+                allModalThumbs[nextIndex].click();
+            }
+        });
     });
-
-    // Funciones para cantidad
-    function increaseQuantity() {
-        const quantityInput = document.getElementById('quantity');
-        quantityInput.value = parseInt(quantityInput.value) + 1;
-    }
-
-    function decreaseQuantity() {
-        const quantityInput = document.getElementById('quantity');
-        if (parseInt(quantityInput.value) > 1) {
-            quantityInput.value = parseInt(quantityInput.value) - 1;
-        }
-    }
 </script>
 @endsection

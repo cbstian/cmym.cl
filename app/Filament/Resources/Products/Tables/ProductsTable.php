@@ -45,16 +45,8 @@ class ProductsTable
                     ->money('CLP')
                     ->sortable()
                     ->placeholder('Sin oferta'),
-                TextColumn::make('variants_count')
-                    ->label('Variantes')
-                    ->counts('variants')
-                    ->badge()
-                    ->color('info'),
-                TextColumn::make('stock_total')
+                TextColumn::make('stock_quantity')
                     ->label('Stock')
-                    ->getStateUsing(function ($record) {
-                        return $record->variants()->sum('stock_quantity');
-                    })
                     ->badge()
                     ->color(fn (int $state): string => match (true) {
                         $state === 0 => 'danger',
