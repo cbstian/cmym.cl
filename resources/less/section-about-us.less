@@ -1,6 +1,8 @@
+@import 'colors.less';
+
 // About Us page styles
-.hero-section {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('path/to/hero-image.jpg');
+.about-hero-section {
+    background-image: url('../images/fondo-banner-nosotros.jpg');
     background-size: cover;
     background-position: center;
     min-height: 400px;
@@ -28,8 +30,7 @@
 }
 
 .feature-icon {
-    width: 60px;
-    height: 60px;
+    font-size: 30px;
     margin-bottom: 1rem;
 }
 
@@ -39,7 +40,6 @@
 }
 
 .feature-title {
-    color: #dc3545;
     font-weight: bold;
     margin-bottom: 1rem;
 }
@@ -49,74 +49,9 @@
     font-size: 0.9rem;
 }
 
-.mission-section {
-    background-color: #343a40;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.mission-content {
-    position: relative;
-    z-index: 2;
-}
-
-.mission-shape {
-    position: absolute;
-    right: -100px;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    background-color: rgba(255,255,255,0.1);
-    transform: skewX(-15deg);
-}
-
-.vision-section {
-    background-color: #4CAF50;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.vision-content {
-    position: relative;
-    z-index: 2;
-}
-
-.vision-shape {
-    position: absolute;
-    left: -100px;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    background-color: rgba(255,255,255,0.1);
-    transform: skewX(15deg);
-}
-
-.values-section {
-    background-color: #d4d4aa;
-    position: relative;
-    overflow: hidden;
-}
-
-.values-content {
-    position: relative;
-    z-index: 2;
-}
-
-.values-shape {
-    position: absolute;
-    right: -100px;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    background-color: rgba(255,255,255,0.2);
-    transform: skewX(-15deg);
-}
-
 .section-icon {
-    width: 120px;
-    height: 120px;
+    width: 220px;
+    height: 220px;
     margin-bottom: 2rem;
 }
 
@@ -128,10 +63,131 @@
     .section-title {
         font-size: 2rem;
     }
+}
 
-    .mission-shape,
-    .vision-shape,
-    .values-shape {
-        display: none;
+.about-section-1 {
+    position: relative;
+    background: linear-gradient(to right, @gray 50.1%, #fff 49.9%);
+
+    .h-400 {
+        height: 400px;
+    }
+
+    @media (max-width: 992px) {
+        background: @gray;
+
+        .h-400 {
+            height: auto;
+        }
+    }
+}
+
+.bg-arrow-1 {
+    position: relative;
+    border-left: 1px solid @gray;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0px;
+        width: 0;
+        height: 100%;
+        border-top: 200px solid transparent;
+        border-bottom: 200px solid transparent;
+        border-left: 130px solid @gray;
+        z-index: 1;
+    }
+
+    @media (max-width: 992px) {
+        border-left: none;
+        &::before {
+            display: none;
+        }
+    }
+}
+
+.about-section-2 {
+    position: relative;
+    background: linear-gradient(to left, @green 50.1%, #fff 49.9%);
+
+    .h-400 {
+        height: 400px;
+    }
+
+    @media (max-width: 992px) {
+        background: @green;
+
+        .h-400 {
+            height: auto;
+        }
+    }
+}
+
+.bg-arrow-2 {
+    position: relative;
+    border-right: 1px solid @green;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0px;
+        width: 0;
+        height: 100%;
+        border-top: 200px solid transparent;
+        border-bottom: 200px solid transparent;
+        border-right: 130px solid @green;
+        z-index: 1;
+    }
+
+    @media (max-width: 992px) {
+        border-right: none;
+        &::after {
+            display: none;
+        }
+    }
+}
+
+
+.about-section-3 {
+    position: relative;
+    background: linear-gradient(to right, @beige-2 50.1%, #fff 49.9%);
+
+    .h-400 {
+        height: 400px;
+    }
+
+    @media (max-width: 992px) {
+        background: @beige-2;
+
+        .h-400 {
+            height: auto;
+        }
+    }
+}
+
+.bg-arrow-3 {
+    position: relative;
+    border-left: 1px solid @beige-2;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0px;
+        width: 0;
+        height: 100%;
+        border-top: 200px solid transparent;
+        border-bottom: 200px solid transparent;
+        border-left: 130px solid @beige-2;
+        z-index: 1;
+    }
+
+    @media (max-width: 992px) {
+        border-left: none;
+        &::before {
+            display: none;
+        }
     }
 }

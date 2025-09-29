@@ -3,68 +3,85 @@
 namespace App\Livewire;
 
 use App\Models\Address;
-use App\Models\Commune;
 use App\Models\Customer;
+use App\Models\Location\Region;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\Region;
 use App\Models\User;
+use App\Services\CheckoutService;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Session;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class Checkout extends Component
 {
-    // Datos del usuario
+    // Datos del usuario - persistidos en sesión
+    #[Session]
     #[Validate('required|string|max:255')]
     public $name = '';
 
+    #[Session]
     #[Validate('required|email|max:255')]
     public $email = '';
 
+    #[Session]
     #[Validate('required|string|max:20')]
     public $phone = '';
 
+    #[Session]
     #[Validate('nullable|string|max:12')]
     public $rut = '';
 
+    #[Session]
     #[Validate('nullable|string|max:255')]
     public $company_name = '';
 
-    // Datos de dirección de envío
+    // Datos de dirección de envío - persistidos en sesión
+    #[Session]
     #[Validate('required|exists:regions,id')]
     public $shipping_region_id = '';
 
+    #[Session]
     #[Validate('required|exists:communes,id')]
     public $shipping_commune_id = '';
 
+    #[Session]
     #[Validate('required|string|max:255')]
     public $shipping_address_line_1 = '';
 
+    #[Session]
     #[Validate('nullable|string|max:255')]
     public $shipping_address_line_2 = '';
 
-    // Datos de facturación
+    // Datos de facturación - persistidos en sesión
+    #[Session]
     public $same_as_shipping = true;
 
+    #[Session]
     #[Validate('required_if:same_as_shipping,false|nullable|exists:regions,id')]
     public $billing_region_id = '';
 
+    #[Session]
     #[Validate('required_if:same_as_shipping,false|nullable|exists:communes,id')]
     public $billing_commune_id = '';
 
+    #[Session]
     #[Validate('required_if:same_as_shipping,false|nullable|string|max:255')]
     public $billing_address_line_1 = '';
 
+    #[Session]
     #[Validate('nullable|string|max:255')]
     public $billing_address_line_2 = '';
 
-    // Notas adicionales
+    // Notas adicionales - persistidas en sesión
+    #[Session]
     #[Validate('nullable|string|max:500')]
     public $order_notes = '';
 
-    // Método de pago
+    // Método de pago - persistido en sesión
+    #[Session]
     #[Validate('required|in:webpay,transfer')]
     public $payment_method = 'webpay';
 
@@ -90,6 +107,12 @@ class Checkout extends Component
         $this->loadCart();
         $this->loadRegions();
         $this->calculateTotals();
+
+        // Verificar si el pago anterior falló
+        if (session()->has('checkout_payment_failed')) {
+            session()->flash('error', 'El pago anterior no pudo ser procesado. Por favor, verifica los datos e inténtalo nuevamente.');
+            session()->forget('checkout_payment_failed');
+        }
     }
 
     public function updatedShippingRegionId($regionId): void
@@ -98,9 +121,10 @@ class Checkout extends Component
         $this->communes = [];
 
         if ($regionId) {
-            $this->communes = Commune::where('region_id', $regionId)
-                ->orderBy('name')
-                ->get();
+            $region = Region::find($regionId);
+            if ($region) {
+                $this->communes = $region->communesActive();
+            }
         }
 
         $this->calculateTotals();
@@ -112,9 +136,10 @@ class Checkout extends Component
         $this->billing_communes = [];
 
         if ($regionId) {
-            $this->billing_communes = Commune::where('region_id', $regionId)
-                ->orderBy('name')
-                ->get();
+            $region = Region::find($regionId);
+            if ($region) {
+                $this->billing_communes = $region->communesActive();
+            }
         }
     }
 
@@ -239,15 +264,16 @@ class Checkout extends Component
                     }
                 }
 
-                // Limpiar el carrito
-                $this->clearCart();
+                // No limpiar el carrito aquí - solo se limpia cuando el pago es exitoso
+                // $this->clearCart(); - Removido
 
                 // Procesar según el método de pago
                 if ($this->payment_method === 'webpay') {
                     // Redirigir al proceso de pago con Webpay
                     $this->redirect(route('payment.webpay.init', $order), navigate: false);
                 } else {
-                    // Para transferencia bancaria, mostrar instrucciones
+                    // Para transferencia bancaria, limpiar carrito y mostrar instrucciones
+                    CheckoutService::markCheckoutComplete();
                     session()->flash('success', 'Tu pedido ha sido creado exitosamente. Número de orden: '.$order->order_number.' - Recibirás las instrucciones de pago por email.');
                     $this->redirect(route('home'), navigate: true);
                 }
@@ -261,6 +287,24 @@ class Checkout extends Component
         } finally {
             $this->isLoading = false;
         }
+    }
+
+    /**
+     * Método público para limpiar manualmente el carrito y datos del checkout
+     * Útil para casos especiales o llamadas desde otros componentes
+     */
+    public function clearCheckoutData(): void
+    {
+        CheckoutService::markCheckoutComplete();
+        $this->loadCart(); // Recargar carrito vacío
+    }
+
+    /**
+     * Método público para verificar si hay datos de checkout en sesión
+     */
+    public function hasPersistedData(): bool
+    {
+        return CheckoutService::hasCheckoutData();
     }
 
     private function loadCart(): void

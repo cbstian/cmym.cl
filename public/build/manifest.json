@@ -16,7 +16,7 @@
     "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-1C8Us1eN.css",
+    "file": "assets/app-Bc4E1RYd.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -39,14 +39,6 @@
       "theme.css"
     ]
   },
-  "resources/css/payment.css": {
-    "file": "assets/payment-Dd-Gq0Rv.css",
-    "src": "resources/css/payment.css",
-    "isEntry": true,
-    "names": [
-      "payment.css"
-    ]
-  },
   "resources/images/FondoForm.webp": {
     "file": "assets/FondoForm-5pkm9IMP.webp",
     "src": "resources/images/FondoForm.webp"
@@ -54,6 +46,19 @@
   "resources/images/banner-home.webp": {
     "file": "assets/banner-home-BEvLQeLx.webp",
     "src": "resources/images/banner-home.webp"
+  },
+  "resources/images/fondo-banner-nosotros.jpg": {
+    "file": "assets/fondo-banner-nosotros-BA36LYan.jpg",
+    "src": "resources/images/fondo-banner-nosotros.jpg"
+  },
+  "resources/js/aos-app.js": {
+    "file": "assets/aos-app-bOn93KaB.js",
+    "name": "aos-app",
+    "src": "resources/js/aos-app.js",
+    "isEntry": true,
+    "css": [
+      "assets/aos-app-DvB2Xm2x.css"
+    ]
   },
   "resources/js/app.js": {
     "file": "assets/app-Bj43h_rG.js",
@@ -77,7 +82,7 @@
     ]
   },
   "resources/less/app.less": {
-    "file": "assets/app-D2LnUs5f.css",
+    "file": "assets/app-BeE6ObTz.css",
     "src": "resources/less/app.less",
     "isEntry": true,
     "names": [

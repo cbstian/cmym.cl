@@ -1,7 +1,7 @@
-<div class="container py-5">
+<div class="container py-4 py-lg-5">
     @if($showTitle)
         <div class="row">
-            <div class="col-md-12 px-0 text-center pb-5">
+            <div class="col-md-12 px-0 text-center pb-4 pb-lg-5">
                 <h1 class="montserrat-900 mb-0 text-green">PRODUCTOS</h1>
             </div>
         </div>

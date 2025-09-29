@@ -1,5 +1,5 @@
 <div class="fixed-top">
-    <nav class="navbar navbar-expand-lg py-0 bg-gray">
+    <nav class="navbar navbar-expand-lg py-0 navbar-dark bg-gray">
         <div class="container py-2">
             <a class="navbar-brand" href="{{ route('home') }}">
                 <img src="{{ asset('images/mym-logo.svg') }}" class="img-fluid" style="max-height: 60px;" alt="Nazcastore">
@@ -21,7 +21,7 @@
                     <li class="nav-item px-3 d-flex align-items-center me-3 @if( Request::is('contacto') ) active @endif">
                         <a class="nav-link" aria-current="page" href="{{ route('contact') }}">Contacto</a>
                     </li>
-                    <li class="nav-item px-3 d-flex align-items-center position-relative">
+                    <li class="nav-item px-3 d-flex align-items-center position-relative py-4 py-lg-0">
                         <a class="nav-link p-0" aria-current="page" href="{{ route('cart') }}" title="Ver Carrito">
                             <img src="{{ asset('images/cart-icon.svg') }}" class="img-fluid" style="max-height: 40px;" alt="Carrito">
                             <livewire:cart.cart-counter />

@@ -14,7 +14,7 @@
 <div class="container-fluid bg-white">
     <div class="container py-5">
         <div class="row">
-            <div class="col-md-12 px-0 text-center pb-3">
+            <div class="col-md-12 px-0 text-center pb-3" data-aos="fade-up" data-aos-duration="800">
                 <p class="font-size-18 text-gray mb-2">M&M - Comercializadora e Importadora</p>
                 <h1 class="montserrat-900 mb-3 text-green">NUESTROS PRODUCTOS</h1>
                 <p class="font-size-18 text-gray">
@@ -32,17 +32,17 @@
 <div class="container-fluid bg-beige">
     <div class="container py-5">
         <div class="row align-items-center">
-            <div class="col-md-6">
+            <div class="col-md-6" data-aos="slide-up" data-aos-duration="800">
                 <h3 class="montserrat-900 text-green mb-4">¿No encuentras lo que buscas?</h3>
                 <p class="font-size-18 text-gray mb-4">
                     Contamos con una amplia red de proveedores que nos permite conseguir
                     productos específicos según tus necesidades. <strong>¡Contáctanos!</strong>
                 </p>
-                <a href="{{ route('contact') }}" class="btn btn-primary-green text-white montserrat-600">
+                <a href="{{ route('contact') }}" class="btn btn-primary-green text-white montserrat-600" data-aos="zoom-in" data-aos-delay="200">
                     Contactar ahora
                 </a>
             </div>
-            <div class="col-md-6 text-center">
+            <div class="col-md-6 text-center" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="100">
                 <img src="{{ asset('images/sillas-1.png') }}" class="img-fluid" alt="Productos M&M">
             </div>
         </div>
@@ -52,12 +52,12 @@
 <div class="container-fluid bg-white">
     <div class="container py-5">
         <div class="row">
-            <div class="col-md-12 text-center">
+            <div class="col-md-12 text-center" data-aos="fade-down" data-aos-duration="800">
                 <h3 class="montserrat-900 text-green mb-4">¿Por qué elegir nuestros productos?</h3>
             </div>
         </div>
         <div class="row py-3">
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-down" data-aos-delay="100">
                 <div class="bg-beige p-4 rounded-4 h-100">
                     <img src="{{ asset('images/experiencia.svg') }}" class="img-fluid mb-3" alt="Calidad garantizada">
                     <h5 class="montserrat-700 text-green mb-3">CALIDAD GARANTIZADA</h5>
@@ -67,7 +67,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-down" data-aos-delay="200">
                 <div class="bg-beige p-4 rounded-4 h-100">
                     <img src="{{ asset('images/enfoque.svg') }}" class="img-fluid mb-3" alt="Variedad de estilos">
                     <h5 class="montserrat-700 text-green mb-3">VARIEDAD DE ESTILOS</h5>
@@ -77,7 +77,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-down" data-aos-delay="300">
                 <div class="bg-beige p-4 rounded-4 h-100">
                     <img src="{{ asset('images/union.svg') }}" class="img-fluid mb-3" alt="Entrega a domicilio">
                     <h5 class="montserrat-700 text-green mb-3">ENTREGA A DOMICILIO</h5>
@@ -94,6 +94,7 @@
 @endsection
 
 @section('pre_js')
+    @vite('resources/js/aos-app.js')
 @endsection
 
 @section('js')

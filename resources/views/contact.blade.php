@@ -15,7 +15,7 @@
 <div class="container-fluid bg-white">
     <div class="container">
         <div class="row py-5">
-            <div class="col-md-12 text-center py-5">
+            <div class="col-md-12 text-center py-5" data-aos="zoom-in" data-aos-duration="1000">
                 <h1 class="montserrat-900 mb-3">CONTÁCTANOS</h1>
                 <p class="font-size-18 text-muted">
                     Estamos aquí para ayudarte a encontrar los muebles perfectos para tu hogar.<br>
@@ -30,7 +30,7 @@
 <div class="container-fluid bg-light">
     <div class="container py-5">
         <div class="row">
-            <div class="col-md-12 text-center mb-5">
+            <div class="col-md-12 text-center mb-5" data-aos="fade-up" data-aos-duration="800">
                 <h2 class="montserrat-900 text-green">INFORMACIÓN DE CONTACTO</h2>
                 <p class="font-size-18">Te ofrecemos múltiples formas de comunicarte con nosotros</p>
             </div>
@@ -38,7 +38,7 @@
 
         <div class="row justify-content-center">
             <!-- Teléfono -->
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-up" data-aos-delay="100">
                 <div class="bg-white p-4 rounded shadow-sm h-100">
                     <i class="fas fa-phone fa-3x text-green mb-3"></i>
                     <h4 class="montserrat-600 text-dark mb-3">Teléfono</h4>
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Email -->
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-up" data-aos-delay="200">
                 <div class="bg-white p-4 rounded shadow-sm h-100">
                     <i class="fas fa-envelope fa-3x text-green mb-3"></i>
                     <h4 class="montserrat-600 text-dark mb-3">Correo Electrónico</h4>
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Redes Sociales -->
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-4" data-aos="flip-up" data-aos-delay="300">
                 <div class="bg-white p-4 rounded shadow-sm h-100">
                     <i class="fas fa-share-alt fa-3x text-green mb-3"></i>
                     <h4 class="montserrat-600 text-dark mb-3">Redes Sociales</h4>
@@ -90,7 +90,7 @@
 <div class="container-fluid container-form">
     <div class="container py-5">
         <div class="row align-items-center py-5">
-            <div class="col-md-6">
+            <div class="col-md-6" data-aos="slide-up" data-aos-duration="800">
                 <p class="mb-4 text-yellow">M&M - Comercializadora e Importadora</p>
                 <h1 class="montserrat-900 mb-4 text-green text-uppercase">
                     <span class="text-white">¿Tienes alguna</span><br>
@@ -102,7 +102,7 @@
                 </p>
 
                 <!-- Beneficios -->
-                <div class="text-white">
+                <div class="text-white" data-aos="fade-up" data-aos-delay="200">
                     <h5 class="text-yellow mb-3">
                         <i class="fas fa-star me-2"></i>
                         ¿Por qué elegirnos?
@@ -123,7 +123,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" data-aos="slide-down" data-aos-duration="800" data-aos-delay="100">
                 @livewire('contact-form')
             </div>
         </div>
@@ -138,9 +138,8 @@
 @endsection
 
 @section('pre_js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    @vite('resources/js/aos-app.js')
 @endsection
 
 @section('js')
-
 @endsection

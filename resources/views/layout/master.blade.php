@@ -14,7 +14,6 @@
 
         @vite('resources/js/bootstrap-app.js')
         @vite('resources/less/app.less')
-        @vite('resources/css/payment.css')
 
         @yield('css')
     </head>

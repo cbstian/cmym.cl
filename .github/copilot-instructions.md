@@ -31,6 +31,9 @@ This is a Laravel 12 e-commerce application focused on Chilean market with compr
 - **Customers**: Extended from users with Chilean-specific fields (RUT validation)
 - **Geography**: Chilean regions/communes for shipping and billing addresses
 - **Inventory**: Stock movements tracking with reference types and audit trails
+- **Payments**: Transbank WebPay Plus integration for Chilean payment processing
+- **Cart**: Laravel Cart package integration with Cartable interface
+- **Services**: Dedicated service classes for checkout workflow and payment processing
 
 ### Frontend Architecture Patterns
 - **Public Routes**: Traditional Blade views in `resources/views/` (home, products, product-single, contact, about-us)
@@ -123,11 +126,23 @@ public function mount($perPage = 8, $showTitle = true)
 }
 ```
 
+### Cart Integration (Laravel Cart Package)
+- Products implement `Cartable` interface for cart compatibility
+- Cart operations managed through service layer and session persistence
+- Checkout workflow: cart → checkout form → payment → completion/failure
+- Session-based state management with proper cleanup after successful payments
+
 ### Database Schema Notes
 - Uses `soft_deletes` for products (deleted_at column)
 - JSON columns for flexible data: `image_paths`, `variant_attributes_json`
 - Unique constraints on slugs and SKUs
 - Chilean-specific enum for gender, order status, payment methods
+
+### Service Layer Architecture
+- **CheckoutService**: Manages session state for cart and checkout workflow
+- **TransbankService**: Handles WebPay Plus integration with proper error handling
+- Services follow static method pattern for stateless operations
+- Payment states: pending → confirmed/failed with proper session management
 
 ## Critical Integration Points
 
@@ -138,10 +153,12 @@ laravel({
     input: [
         'resources/css/app.css',        // TailwindCSS
         'resources/js/app.js',
+        'resources/css/filament/admin/theme.css', // Admin theme
         'resources/js/bootstrap-app.js', // Bootstrap frontend
-        'resources/less/app.less',       // Custom styles
-        'resources/css/filament/admin/theme.css' // Admin theme
-    ]
+        'resources/css/bootstrap.scss',  // Bootstrap SCSS
+        'resources/less/app.less',       // Custom LESS styles
+    ],
+    refresh: true,
 })
 ```
 
@@ -149,6 +166,13 @@ laravel({
 - **Bootstrap**: Primary styling framework for public-facing pages
 - **TailwindCSS**: Used in Filament admin interface and specific components
 - **LESS**: Custom styling overrides and project-specific styles
+- **SCSS**: Bootstrap compilation with modern-compiler API and deprecation silence
+
+### Chilean Market Integration
+- **Transbank WebPay Plus**: Native payment processing with proper error handling
+- **Regional Geography**: Chilean regions and communes for address management
+- **RUT Validation**: Chilean tax ID validation for customer registration
+- **Currency**: Chilean peso (CLP) with proper decimal formatting
 
 ## Debugging & Development Tools
 

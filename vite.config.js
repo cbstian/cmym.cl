@@ -14,8 +14,8 @@ export default defineConfig({
                 'resources/css/bootstrap.scss',
                 // Custom LESS styles
                 'resources/less/app.less',
-                // Payment styles
-                'resources/css/payment.css'
+                // AOS (Animate On Scroll) library
+                'resources/js/aos-app.js',
             ],
             refresh: true,
         }),

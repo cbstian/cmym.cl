@@ -109,9 +109,12 @@ class AddToCartButton extends Component
                 LaravelCart::driver('session')->storeItem($item, crc32($sessionUserId));
 
                 session()->flash('success', 'Producto agregado al carrito ('.$this->quantity.' unidades)');
+
+                // Redirigir al carrito después de agregar exitosamente
+                $this->redirect(route('cart'));
             }
 
-            // Resetear formulario
+            // Resetear formulario (solo si no hubo redirección)
             $this->quantity = 1;
             $this->selectedAttributes = [];
 

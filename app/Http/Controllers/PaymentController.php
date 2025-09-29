@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\CheckoutService;
 use App\Services\TransbankService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -132,6 +133,10 @@ class PaymentController extends Controller
 
             if ($result['approved']) {
                 DB::commit();
+
+                // Limpiar carrito y datos del checkout al completar el pago exitosamente
+                CheckoutService::markCheckoutComplete();
+
                 Log::info('Payment approved successfully', [
                     'payment_id' => $payment->id,
                     'order_id' => $payment->order_id,
@@ -142,6 +147,10 @@ class PaymentController extends Controller
                     ->with('success', 'Pago procesado exitosamente.');
             } else {
                 DB::rollBack();
+
+                // Marcar checkout como fallido para mantener datos en sesión
+                CheckoutService::markCheckoutFailed();
+
                 Log::warning('Payment rejected by bank', [
                     'payment_id' => $payment->id,
                     'order_id' => $payment->order_id,
@@ -154,6 +163,10 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
+            // Marcar checkout como fallido para mantener datos en sesión
+            CheckoutService::markCheckoutFailed();
+
             Log::error('Exception processing successful payment', [
                 'token' => $token,
                 'error' => $e->getMessage(),
@@ -210,6 +223,9 @@ class PaymentController extends Controller
                 ]);
             }
         }
+
+        // Marcar checkout como fallido para mantener datos en sesión
+        CheckoutService::markCheckoutFailed();
 
         return redirect()->route('payment.cancelled', $payment ? ['payment' => $payment->id] : [])
             ->with('warning', 'El pago fue cancelado o no se pudo procesar.');
