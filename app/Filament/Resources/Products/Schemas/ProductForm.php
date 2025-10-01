@@ -52,7 +52,7 @@ class ProductForm
                             ])
                             ->columns(2),
 
-                        Section::make('Precios')
+                        Section::make('Precios e Inventario')
                             ->schema([
                                 TextInput::make('price')
                                     ->label('Precio')
@@ -65,8 +65,16 @@ class ProductForm
                                     ->numeric()
                                     ->prefix('$')
                                     ->step(0.01),
+                                TextInput::make('stock_quantity')
+                                    ->label('Stock disponible')
+                                    ->required()
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->suffix('unidades')
+                                    ->helperText('Cantidad de unidades disponibles en inventario'),
                             ])
-                            ->columns(2),
+                            ->columns(3),
 
                         Section::make('Detalles Físicos')
                             ->schema([

@@ -34,7 +34,7 @@ class ProductInfolist
                     ])
                     ->columns(2),
 
-                Section::make('Precios')
+                Section::make('Precios e Inventario')
                     ->schema([
                         TextEntry::make('price')
                             ->label('Precio')
@@ -43,8 +43,18 @@ class ProductInfolist
                             ->label('Precio de oferta')
                             ->money('CLP')
                             ->placeholder('Sin oferta'),
+                        TextEntry::make('stock_quantity')
+                            ->label('Stock disponible')
+                            ->numeric()
+                            ->suffix(' unidades')
+                            ->badge()
+                            ->color(fn (int $state): string => match (true) {
+                                $state === 0 => 'danger',
+                                $state < 10 => 'warning',
+                                default => 'success',
+                            }),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make('Detalles Físicos')
                     ->schema([

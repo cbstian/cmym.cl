@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Models\Category;
 use App\Models\Product;
@@ -38,4 +39,20 @@ it('can search products', function () {
         ->searchTable('Alpha')
         ->assertCanSeeTableRecords([$productA])
         ->assertCanNotSeeTableRecords([$productB]);
+});
+
+it('can create a product with stock', function () {
+    $category = Category::factory()->create();
+
+    $product = Product::factory()->create([
+        'category_id' => $category->id,
+        'stock_quantity' => 25,
+    ]);
+
+    expect($product->stock_quantity)->toBe(25);
+});
+
+it('form has stock quantity field', function () {
+    Livewire::test(CreateProduct::class)
+        ->assertFormFieldExists('stock_quantity');
 });
