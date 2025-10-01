@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'order_number',
         'customer_id',
@@ -19,7 +22,6 @@ class Order extends Model
         'currency',
         'payment_status',
         'payment_method',
-        'shipping_method_id',
         'billing_address_id',
         'shipping_address_id',
         'notes',
@@ -101,5 +103,13 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Obtiene los emails de notificación desde la configuración
+     */
+    public static function getNotificationEmails(): array
+    {
+        return app(\App\Settings\EcommerceSettings::class)->emails_notifications_orders;
     }
 }

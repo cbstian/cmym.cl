@@ -89,6 +89,19 @@ class Payment extends Model
 
     public function isWebpay(): bool
     {
-        return $this->payment_method === self::METHOD_WEBPAY;
+        return $this->method === self::METHOD_WEBPAY;
+    }
+
+    public function isTransfer(): bool
+    {
+        return $this->method === self::METHOD_TRANSFER;
+    }
+
+    /**
+     * Obtiene los detalles bancarios desde la configuración
+     */
+    public static function getBankDetails(): string
+    {
+        return app(\App\Settings\EcommerceSettings::class)->bank_details;
     }
 }

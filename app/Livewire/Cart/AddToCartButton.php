@@ -18,7 +18,10 @@ class AddToCartButton extends Component
 
     public function mount(Product $product): void
     {
-        $this->product = $product;
+        // Cargar atributos del producto si no están cargados
+        $this->product = $product->load('attributes');
+
+        // No pre-seleccionar atributos - el usuario debe elegir
     }
 
     public function increaseQuantity(): void
@@ -53,6 +56,15 @@ class AddToCartButton extends Component
 
     public function addToCart(): void
     {
+        // Validar atributos requeridos
+        foreach ($this->product->attributes as $attribute) {
+            if ($attribute->is_required && empty($this->selectedAttributes[$attribute->id])) {
+                session()->flash('error', 'Debes seleccionar un valor para: '.$attribute->name);
+
+                return;
+            }
+        }
+
         // Validar stock
         if ($this->product->stock_quantity < $this->quantity) {
             session()->flash('error', 'No hay suficiente stock disponible');
@@ -77,28 +89,53 @@ class AddToCartButton extends Component
             $sessionKey = 'cart_'.crc32($sessionUserId);
             $cartItems = session($sessionKey, []);
 
-            // Buscar si el producto ya está en el carrito
+            // Preparar atributos con nombres para comparación
+            $formattedAttributes = [];
+            foreach ($this->selectedAttributes as $attributeId => $selectedValue) {
+                $attribute = $this->product->attributes->find($attributeId);
+                if ($attribute && ! empty($selectedValue)) {
+                    $formattedAttributes[$attribute->name] = $selectedValue;
+                }
+            }
+
+            // Buscar si el producto con los mismos atributos ya está en el carrito
             $existingItemIndex = null;
             foreach ($cartItems as $index => $item) {
                 if (($item['itemable_id'] ?? null) === $this->product->id &&
                     ($item['itemable_type'] ?? null) === Product::class) {
-                    $existingItemIndex = $index;
-                    break;
+
+                    // Comparar atributos
+                    $existingAttributes = $item['attributes'] ?? [];
+                    if ($this->attributesAreEqual($formattedAttributes, $existingAttributes)) {
+                        $existingItemIndex = $index;
+                        break;
+                    }
                 }
             }
 
             if ($existingItemIndex !== null) {
-                // El producto ya existe, mostrar mensaje informativo y no hacer nada más
+                // El producto con los mismos atributos ya existe, actualizar cantidad
                 $currentQuantity = $cartItems[$existingItemIndex]['quantity'] ?? 0;
-                session()->flash('info', 'Este producto ya está en tu carrito ('.$currentQuantity.' unidades)');
+                $newQuantity = $currentQuantity + $this->quantity;
 
-                return;
+                // Validar que no exceda el stock
+                if ($newQuantity > $this->product->stock_quantity) {
+                    session()->flash('error', 'No puedes agregar más cantidad. Stock disponible: '.$this->product->stock_quantity);
+
+                    return;
+                }
+
+                $cartItems[$existingItemIndex]['quantity'] = $newQuantity;
+                session([$sessionKey => $cartItems]);
+
+                session()->flash('success', 'Cantidad actualizada en el carrito ('.$newQuantity.' unidades)');
+                $this->redirect(route('cart'));
             } else {
                 // El producto no existe, agregarlo como nuevo item
                 $item = [
                     'itemable' => $this->product,
                     'quantity' => $this->quantity,
-                    'attributes' => $this->selectedAttributes,
+                    'attributes' => $formattedAttributes,
                     'product_name' => $this->product->name,
                     'product_sku' => $this->product->sku,
                     'product_price' => $this->product->getPrice(),
@@ -126,6 +163,26 @@ class AddToCartButton extends Component
         } finally {
             $this->loading = false;
         }
+    }
+
+    /**
+     * Compara si dos arrays de atributos son iguales
+     */
+    private function attributesAreEqual(array $attributes1, array $attributes2): bool
+    {
+        // Si tienen diferentes cantidades de elementos, no son iguales
+        if (count($attributes1) !== count($attributes2)) {
+            return false;
+        }
+
+        // Comparar cada atributo
+        foreach ($attributes1 as $key => $value) {
+            if (! isset($attributes2[$key]) || $attributes2[$key] !== $value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function render()

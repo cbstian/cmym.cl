@@ -2,15 +2,22 @@
 
 namespace App\Livewire;
 
+use App\Mail\ContactFormMail;
 use App\Models\FormContact;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class ContactForm extends Component
 {
     public string $nombre = '';
+
     public string $correo = '';
+
     public string $telefono = '';
+
     public string $direccion = '';
+
     public string $mensaje = '';
 
     protected array $rules = [
@@ -25,13 +32,22 @@ class ContactForm extends Component
     {
         $this->validate();
 
-        FormContact::create([
+        $contact = FormContact::create([
             'nombre' => $this->nombre,
             'correo' => $this->correo,
             'telefono' => $this->telefono,
             'direccion' => $this->direccion,
             'mensaje' => $this->mensaje,
         ]);
+
+        // Enviar correo de notificación a los administradores
+        try {
+            $adminEmail = config('mail.from.address');
+            Mail::to($adminEmail)->send(new ContactFormMail($contact));
+        } catch (\Exception $e) {
+            // Log error but don't fail the form submission
+            Log::error('Error enviando correo de contacto: '.$e->getMessage());
+        }
 
         $this->reset(['nombre', 'correo', 'telefono', 'direccion', 'mensaje']);
 

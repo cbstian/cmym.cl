@@ -15,7 +15,9 @@ class ProductController extends Controller
     {
         $product = Product::where('slug', $slug)
             ->where('is_active', true)
-            ->with('category')
+            ->with(['category', 'attributes' => function ($query) {
+                $query->orderBy('sort');
+            }])
             ->firstOrFail();
 
         return view('product-single', compact('product'));

@@ -1,205 +1,150 @@
 # CMYM.CL E-commerce Platform Instructions
 
 ## Project Overview
-This is a Laravel 12 e-commerce application focused on Chilean market with comprehensive product management, order processing, and content management capabilities. The application uses a **hybrid frontend approach**: Bootstrap for public-facing pages with Livewire components, and Filament v4 for admin panel.
+Laravel 12 e-commerce for Chilean market. **Hybrid frontend**: Bootstrap 5 for public pages, Filament v4 admin panel. Service-layer architecture for payments and checkout.
 
-## Architecture & Stack
+## Stack
+- **Laravel 12** (streamlined structure - no `app/Http/Middleware/`, config in `bootstrap/app.php`)
+- **Filament 4.0.8** (admin), **Livewire 3.6.4** (interactivity), **Pest 3.8.4** (testing)
+- **Bootstrap 5 + TailwindCSS 4 + LESS** (multi-framework styling via Vite)
+- **Transbank WebPay Plus** (Chilean payment gateway)
 
-### Core Technologies
-- **PHP**: 8.4.12
-- **Laravel**: 12.28.1 (streamlined Laravel 11+ structure)
-- **Database**: MySQL with comprehensive e-commerce schema
-- **Frontend**: Hybrid approach - Bootstrap + Livewire for public, Filament for admin
-- **Testing**: Pest v3 with comprehensive feature tests
-- **Styling**: TailwindCSS v4 + Bootstrap v5 + Custom LESS
-- **Build Tools**: Vite with Laravel plugin
+## Critical Architecture Patterns
 
-### Key Package Versions
-- **Filament**: 4.0.8 (admin interface)
-- **Livewire**: 3.6.4 (interactive components) 
-- **Pest**: 3.8.4 (testing framework)
-- **TailwindCSS**: 4.1.13
-- **Laravel Pint**: 1.24.0 (code formatting)
+### Filament Resource Organization (Domain-Based)
+Resources organized by domain in subdirectories with dedicated schema files:
+```
+app/Filament/Resources/
+  Products/
+    ProductResource.php          # Main resource (delegates to schemas)
+    Schemas/ProductForm.php      # Form definition (static configure())
+    Tables/ProductsTable.php     # Table definition
+    Pages/CreateProduct.php      # CRUD pages
+    RelationManagers/...
+```
+**Pattern**: Resources call `ProductForm::configure($schema)`, NOT inline form definitions.
 
-## Domain-Specific Architecture
+### Service Layer (Static Methods)
+Services are **stateless** with static methods for business logic:
+- `CheckoutService::markCheckoutComplete()` - Clears cart + session
+- `TransbankService::createTransaction()` - Returns array with `['success' => bool, 'payment' => Payment, ...]`
 
-### E-commerce Data Model
-- **Products**: Full product catalog with variants, attributes, categories
-- **Product Variants**: SKU-based inventory system with attribute combinations
-- **Categories**: Hierarchical product categories with self-referencing parent_id
-- **Orders**: Complete order lifecycle (pending→confirmed→shipped→delivered→cancelled)
-- **Customers**: Extended from users with Chilean-specific fields (RUT validation)
-- **Geography**: Chilean regions/communes for shipping and billing addresses
-- **Inventory**: Stock movements tracking with reference types and audit trails
-- **Payments**: Transbank WebPay Plus integration for Chilean payment processing
-- **Cart**: Laravel Cart package integration with Cartable interface
-- **Services**: Dedicated service classes for checkout workflow and payment processing
+**Key**: Services handle cross-cutting concerns (payments, checkout flow), NOT models or controllers.
 
-### Frontend Architecture Patterns
-- **Public Routes**: Traditional Blade views in `resources/views/` (home, products, product-single, contact, about-us)
-- **Master Layout**: `resources/views/layout/master.blade.php` with Bootstrap-based styling
-- **Livewire Components**: Interactive functionality in `app/Livewire/` (ProductGrid, ContactForm, FaqList)
-- **Asset Strategy**: Multiple entry points in Vite config for different concerns (Bootstrap, TailwindCSS, LESS, Filament)
-
-### Admin Interface (Filament v4)
-- **Resources**: CRUD interfaces in `app/Filament/Resources/` with organized subdirectories (Products/, Faqs/, etc.)
-- **Custom Schemas**: Form and table definitions in dedicated schema files (e.g., `ProductForm`, `ProductsTable`)
-- **Relation Managers**: Product variants managed through relation managers
-- **File Organization**: Group by domain (Products/ProductResource.php, Products/Pages/, Products/Schemas/)
-
-### Key Business Logic Patterns
-
-#### Automatic Slug Generation (Products)
+### Livewire Session Persistence
+Checkout form uses `#[Session]` attribute to persist across page loads:
 ```php
-protected static function booted(): void
-{
-    static::creating(function (Product $product) {
-        if (empty($product->slug) && !empty($product->name)) {
-            $product->slug = static::generateUniqueSlug($product->name);
-        }
-    });
-}
+#[Session]
+#[Validate('required|email')]
+public $email = '';
+```
+**Pattern**: User can refresh checkout page without losing form data. `CheckoutService::clearCheckoutSession()` cleans up all Livewire session keys.
+
+### Route Model Binding by Slug
+Products resolved by slug, NOT id:
+```php
+Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
+// Controller: Product::where('slug', $slug)->firstOrFail()
 ```
 
-#### Laravel 12 Casts Pattern
+### Auto-Slug Generation (Model Observers)
+Products auto-generate unique slugs in `booted()` method:
 ```php
-protected function casts(): array
-{
-    return [
-        'image_paths' => 'array',
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
-    ];
-}
-```
-
-## Development Workflows
-
-### Testing Strategy (Pest v3)
-- **Feature Tests**: Comprehensive coverage in `tests/Feature/` 
-- **Key Test Patterns**: ProductSlugTest, ProductResourceTest, FormContactResourceTest
-- **Database**: Uses `RefreshDatabase` trait consistently
-- **Factories**: Product, Category, User, FormContact factories available
-- **Run Commands**: `php artisan test --filter=ProductSlug` for targeted testing
-
-### Asset Development
-```bash
-# Development with hot reload
-npm run dev
-
-# Production build
-npm run build
-
-# Format PHP code (required before commits)
-vendor/bin/pint --dirty
-```
-
-### Artisan Commands
-- Use `php artisan make:livewire NameSpace\\Component` for Livewire components
-- Use Filament-specific commands for admin resources: `php artisan make:filament-resource ProductResource`
-- Always pass `--no-interaction` flag in scripts
-
-## Project-Specific Conventions
-
-### Routing Patterns
-- **Simple Routes**: Product display uses closure routes in `routes/web.php`
-- **Named Routes**: All routes have semantic names (home, products, product.show, contact, about)
-- **Route Model Binding**: Products resolved by slug with `where('slug', $slug)->firstOrFail()`
-
-### Model Relationships
-- Products have category relationship: `belongsTo(Category::class)`
-- Categories are self-referencing: `parent_id` for hierarchy
-- Product variants belong to products with attribute pivot tables
-- Chilean geography: regions → communes relationship for addresses
-
-### File Upload Strategy
-- Product images stored as `image_primary_path` (string) and `image_paths` (JSON array)
-- File handling through Filament's file upload components
-
-### Frontend Component Patterns
-```php
-// Livewire components support configuration
-public function mount($perPage = 8, $showTitle = true)
-{
-    $this->perPage = $perPage;
-    $this->showTitle = $showTitle;
-}
+static::creating(fn($product) => $product->slug = generateUniqueSlug($product->name));
+static::updating(fn($product) => /* only regen if name changed AND slug not manually set */);
 ```
 
 ### Cart Integration (Laravel Cart Package)
-- Products implement `Cartable` interface for cart compatibility
-- Cart operations managed through service layer and session persistence
-- Checkout workflow: cart → checkout form → payment → completion/failure
-- Session-based state management with proper cleanup after successful payments
+Product model implements `Cartable` interface for cart compatibility.
+Cart operations managed via `Binafy\LaravelCart` package with session storage.
 
-### Database Schema Notes
-- Uses `soft_deletes` for products (deleted_at column)
-- JSON columns for flexible data: `image_paths`, `variant_attributes_json`
-- Unique constraints on slugs and SKUs
-- Chilean-specific enum for gender, order status, payment methods
+## Development Workflows
 
-### Service Layer Architecture
-- **CheckoutService**: Manages session state for cart and checkout workflow
-- **TransbankService**: Handles WebPay Plus integration with proper error handling
-- Services follow static method pattern for stateless operations
-- Payment states: pending → confirmed/failed with proper session management
-
-## Critical Integration Points
-
-### Vite Configuration
-Multiple entry points for different concerns:
+### Asset Compilation (Multi-Framework)
+Vite config has **separate entry points** for different styling systems:
 ```javascript
-laravel({
-    input: [
-        'resources/css/app.css',        // TailwindCSS
-        'resources/js/app.js',
-        'resources/css/filament/admin/theme.css', // Admin theme
-        'resources/js/bootstrap-app.js', // Bootstrap frontend
-        'resources/css/bootstrap.scss',  // Bootstrap SCSS
-        'resources/less/app.less',       // Custom LESS styles
-    ],
-    refresh: true,
-})
+input: [
+    'resources/css/app.css',        // TailwindCSS 4 (Filament)
+    'resources/js/bootstrap-app.js', // Bootstrap 5 (public pages)
+    'resources/less/app.less',       // Custom LESS overrides
+    'resources/js/aos-app.js',       // AOS animation library
+]
 ```
+**Commands**: `npm run dev` (watch), `npm run build` (production), `composer run dev` (all services).
 
-### Bootstrap vs TailwindCSS Usage
-- **Bootstrap**: Primary styling framework for public-facing pages
-- **TailwindCSS**: Used in Filament admin interface and specific components
-- **LESS**: Custom styling overrides and project-specific styles
-- **SCSS**: Bootstrap compilation with modern-compiler API and deprecation silence
+### Testing with Pest v3
+Run targeted tests after changes:
+```bash
+php artisan test --filter=ProductSlug  # Single test file
+php artisan test tests/Feature/ProductResourceTest.php
+```
+**Pattern**: Use `RefreshDatabase`, factories, and Pest's `expect()` syntax. Always test Filament resources with `livewire()` assertions.
+
+### Code Formatting (Required)
+**MUST run before commits**: `vendor/bin/pint --dirty`
+
+### Laravel 12 Structure (No Kernel)
+- **Middleware**: Register in `bootstrap/app.php` (NOT `app/Http/Middleware/`)
+- **Console commands**: Auto-discovered from `app/Console/Commands/`
+- **Service providers**: List in `bootstrap/providers.php`
+
+## Project-Specific Patterns
 
 ### Chilean Market Integration
-- **Transbank WebPay Plus**: Native payment processing with proper error handling
-- **Regional Geography**: Chilean regions and communes for address management
-- **RUT Validation**: Chilean tax ID validation for customer registration
-- **Currency**: Chilean peso (CLP) with proper decimal formatting
+- **Payment**: Transbank WebPay Plus (see `TransbankService::createTransaction()`)
+- **Geography**: `regions` → `communes` tables for addresses
+- **Validation**: RUT (Chilean tax ID) validation for customers
+- **Currency**: CLP (Chilean pesos) stored as `decimal:2`
 
-## Debugging & Development Tools
-
-### Laravel Boost MCP Tools Available
-- `mcp_laravel-boost_application-info`: Get package versions and model list
-- `mcp_laravel-boost_database-schema`: Inspect full database schema
-- `mcp_laravel-boost_database-query`: Run read-only SQL queries
-- `mcp_laravel-boost_tinker`: Execute PHP code in Laravel context
-- `mcp_laravel-boost_search-docs`: Version-specific Laravel ecosystem documentation
-
-### Common Development Commands
-```bash
-# Run specific test suite
-php artisan test tests/Feature/ProductSlugTest.php
-
-# Format code before commits
-vendor/bin/pint --dirty
-
-# Asset compilation
-npm run build  # Production
-npm run dev    # Development with watching
+### Model Casts Convention (Laravel 12)
+Use `casts()` method, NOT `$casts` property:
+```php
+protected function casts(): array {
+    return ['image_paths' => 'array', 'price' => 'decimal:2'];
+}
 ```
 
-### Error Investigation
-- Check `storage/logs/laravel.log` for application errors
-- Use `mcp_laravel-boost_last-error` to see recent backend errors
-- Use `mcp_laravel-boost_browser-logs` for frontend debugging
+### Route Naming
+All routes use semantic names: `home`, `products`, `product.show`, `checkout`, `payment.webpay.return`.
+Products accessed by slug: `/producto/{slug}` NOT `/producto/{id}`.
+
+### File Uploads (Filament)
+Product images: `image_primary_path` (string) + `image_paths` (JSON array).
+Visibility defaults to `private` in Filament v4 - set `->visibility('public')` explicitly.
+
+### Livewire Component Configuration
+Components accept mount parameters:
+```php
+public function mount($perPage = 8, $showTitle = true) { ... }
+```
+
+## Key Integration Points
+
+### Multi-Framework Asset Pipeline
+- **Bootstrap 5**: Public pages (`resources/js/bootstrap-app.js`, views use Bootstrap classes)
+- **TailwindCSS 4**: Filament admin only (`resources/css/app.css`)
+- **LESS**: Custom overrides (`resources/less/app.less`)
+- **SCSS**: Bootstrap compilation with deprecation silencing (see `vite.config.js`)
+
+### Composer Dev Script
+`composer run dev` starts **all** services concurrently: Laravel server, queue worker, Pail logs, Vite.
+Uses `npx concurrently` with color-coded output.
+
+### Debugging Tools (Laravel Boost MCP)
+- `mcp_laravel-boost_database-schema`: Inspect full DB schema
+- `mcp_laravel-boost_tinker`: Execute PHP in Laravel context
+- `mcp_laravel-boost_search-docs`: Version-specific docs for Laravel/Filament/Livewire
+- `mcp_laravel-boost_last-error`: Recent backend errors
+- `mcp_laravel-boost_browser-logs`: Frontend console logs
+
+### Testing Patterns
+```php
+// Filament resource tests
+livewire(CreateProduct::class)->fillForm([...])->call('create')->assertNotified();
+
+// Pest expectations
+expect($product->slug)->toBe('mesa-comedor');
+```
 
 <laravel-boost-guidelines>
 ## Conventions

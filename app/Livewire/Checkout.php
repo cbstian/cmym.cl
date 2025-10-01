@@ -2,15 +2,20 @@
 
 namespace App\Livewire;
 
+use App\Mail\TransferPaymentMail;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Location\Region;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\CheckoutService;
+use App\Settings\EcommerceSettings;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Session;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -106,6 +111,7 @@ class Checkout extends Component
     {
         $this->loadCart();
         $this->loadRegions();
+        $this->loadCommunesFromSession();
         $this->calculateTotals();
 
         // Verificar si el pago anterior falló
@@ -113,6 +119,13 @@ class Checkout extends Component
             session()->flash('error', 'El pago anterior no pudo ser procesado. Por favor, verifica los datos e inténtalo nuevamente.');
             session()->forget('checkout_payment_failed');
         }
+    }
+
+    public function updated($property): void
+    {
+        // Asegurar que las comunas estén cargadas después de cualquier actualización
+        // Esto es especialmente importante después de errores de validación
+        $this->ensureCommunesAreLoaded();
     }
 
     public function updatedShippingRegionId($regionId): void
@@ -254,9 +267,12 @@ class Checkout extends Component
                             'product_id' => $product->id,
                             'product_name' => $product->name,
                             'product_sku' => $product->sku,
+                            'product_description' => $product->short_description,
+                            'product_image_path' => $product->image_primary_path,
                             'quantity' => $item['quantity'],
                             'unit_price' => $item['product_price'],
                             'total_price' => $item['product_price'] * $item['quantity'],
+                            'product_attributes' => ! empty($item['attributes']) ? $item['attributes'] : null,
                         ]);
 
                         // Actualizar stock del producto
@@ -264,18 +280,57 @@ class Checkout extends Component
                     }
                 }
 
-                // No limpiar el carrito aquí - solo se limpia cuando el pago es exitoso
-                // $this->clearCart(); - Removido
-
                 // Procesar según el método de pago
                 if ($this->payment_method === 'webpay') {
                     // Redirigir al proceso de pago con Webpay
                     $this->redirect(route('payment.webpay.init', $order), navigate: false);
                 } else {
-                    // Para transferencia bancaria, limpiar carrito y mostrar instrucciones
+                    // Para transferencia bancaria, crear registro de pago pendiente
+                    Payment::create([
+                        'order_id' => $order->id,
+                        'method' => Payment::METHOD_TRANSFER,
+                        'amount' => $order->total_amount,
+                        'currency' => $order->currency,
+                        'status' => Payment::STATUS_PENDING,
+                    ]);
+
+                    // Marcar checkout como completado y limpiar carrito
                     CheckoutService::markCheckoutComplete();
-                    session()->flash('success', 'Tu pedido ha sido creado exitosamente. Número de orden: '.$order->order_number.' - Recibirás las instrucciones de pago por email.');
-                    $this->redirect(route('home'), navigate: true);
+
+                    // Enviar correo con instrucciones de transferencia
+                    try {
+                        $order = $order->load(['customer.user', 'items', 'shippingAddress', 'billingAddress']);
+                        $settings = app(EcommerceSettings::class);
+
+                        // Enviar instrucciones al cliente
+                        Mail::to($order->customer->user->email)
+                            ->send(new TransferPaymentMail(
+                                $order,
+                                $settings->bank_details,
+                                $settings->email_confirmation_payment,
+                                $settings->emails_notifications_orders
+                            ));
+
+                        // Notificar a los administradores sobre la nueva orden
+                        if (! empty($settings->emails_notifications_orders)) {
+                            foreach ($settings->emails_notifications_orders as $adminEmail) {
+                                Mail::to($adminEmail)
+                                    ->send(new TransferPaymentMail(
+                                        $order,
+                                        $settings->bank_details,
+                                        $settings->email_confirmation_payment,
+                                        $settings->emails_notifications_orders
+                                    ));
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Log error but don't fail the order creation
+                        Log::error('Error enviando correo de instrucciones de transferencia: '.$e->getMessage(), [
+                            'order_id' => $order->id,
+                        ]);
+                    }
+
+                    $this->redirect(route('payment.transfer.instructions', ['order' => $order->id]), navigate: false);
                 }
             });
 
@@ -283,6 +338,12 @@ class Checkout extends Component
             // Los errores de validación se manejan automáticamente por Livewire
             throw $e;
         } catch (\Exception $e) {
+            Log::error('Error en processCheckout: '.$e->getMessage(), [
+                'exception' => $e,
+                'payment_method' => $this->payment_method,
+                'cart_items' => count($this->cartItems),
+                'email' => $this->email,
+            ]);
             session()->flash('error', 'Ocurrió un error al procesar tu pedido. Por favor, inténtalo nuevamente.');
         } finally {
             $this->isLoading = false;
@@ -343,6 +404,43 @@ class Checkout extends Component
         $this->regions = Region::orderBy('name')->get();
     }
 
+    private function loadCommunesFromSession(): void
+    {
+        // Cargar comunas de envío si existe región guardada en sesión
+        if ($this->shipping_region_id) {
+            $region = Region::find($this->shipping_region_id);
+            if ($region) {
+                $this->communes = $region->communesActive();
+            }
+        }
+
+        // Cargar comunas de facturación si existe región guardada en sesión y no es la misma dirección
+        if (! $this->same_as_shipping && $this->billing_region_id) {
+            $region = Region::find($this->billing_region_id);
+            if ($region) {
+                $this->billing_communes = $region->communesActive();
+            }
+        }
+    }
+
+    private function ensureCommunesAreLoaded(): void
+    {
+        if ($this->shipping_region_id && count($this->communes) === 0) {
+            $region = Region::find($this->shipping_region_id);
+            if ($region) {
+                $this->communes = $region->communesActive();
+            }
+        }
+
+        // Cargar comunas de facturación si hay región seleccionada, no es la misma dirección y no hay comunas cargadas
+        if (! $this->same_as_shipping && $this->billing_region_id && empty($this->billing_communes)) {
+            $region = Region::find($this->billing_region_id);
+            if ($region) {
+                $this->billing_communes = $region->communesActive();
+            }
+        }
+    }
+
     private function calculateTotals(): void
     {
         $this->subtotal = collect($this->cartItems)->sum(function ($item) {
@@ -369,27 +467,18 @@ class Checkout extends Component
             return 0;
         }
 
+        return 0;
         // Ejemplo: Región Metropolitana = $5000, otras regiones = $8000
-        return $region->code === 'RM' ? 5000 : 8000;
+        // return $region->code === 'RM' ? 5000 : 8000;
     }
 
     private function generateOrderNumber(): string
     {
         do {
-            $orderNumber = 'ORD-'.date('Ymd').'-'.strtoupper(substr(uniqid(), -6));
+            $orderNumber = 'CMYM-'.date('YmdHis');
         } while (Order::where('order_number', $orderNumber)->exists());
 
         return $orderNumber;
-    }
-
-    private function clearCart(): void
-    {
-        $sessionUserId = session('cart_user_id');
-
-        if ($sessionUserId) {
-            $sessionKey = 'cart_'.crc32($sessionUserId);
-            session([$sessionKey => []]);
-        }
     }
 
     public function render()

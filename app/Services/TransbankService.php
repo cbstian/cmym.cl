@@ -67,12 +67,12 @@ class TransbankService
                 'status' => Payment::STATUS_PENDING,
                 'method' => Payment::METHOD_WEBPAY,
                 'token' => $response->getToken(),
-                'response_data' => json_encode([
+                'response_data' => [
                     'url' => $response->getUrl(),
                     'token' => $response->getToken(),
                     'buy_order' => $buyOrder,
                     'session_id' => $sessionId,
-                ]),
+                ],
             ]);
 
             return [
@@ -123,7 +123,7 @@ class TransbankService
                 'status' => $status,
                 'authorization_code' => $response->getAuthorizationCode(),
                 'response_code' => $response->getResponseCode(),
-                'response_data' => json_encode([
+                'response_data' => [
                     'vci' => $response->getVci(),
                     'amount' => $response->getAmount(),
                     'status' => $response->getStatus(),
@@ -137,7 +137,7 @@ class TransbankService
                     'response_code' => $response->getResponseCode(),
                     'installments_amount' => $response->getInstallmentsAmount(),
                     'installments_number' => $response->getInstallmentsNumber(),
-                ]),
+                ],
             ]);
 
             // Actualizar estado de la orden si el pago fue exitoso
@@ -211,8 +211,8 @@ class TransbankService
             // Actualizar el pago con información del reembolso
             $payment->update([
                 'status' => Payment::STATUS_REFUNDED,
-                'response_data' => json_encode(array_merge(
-                    json_decode($payment->response_data ?? '[]', true),
+                'response_data' => array_merge(
+                    $payment->response_data ?? [],
                     [
                         'refund' => [
                             'type' => $response->getType(),
@@ -223,7 +223,7 @@ class TransbankService
                             'nullified_amount' => $response->getNullifiedAmount(),
                         ],
                     ]
-                )),
+                ),
             ]);
 
             return [

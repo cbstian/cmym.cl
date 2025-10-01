@@ -27,6 +27,9 @@ Route::prefix('payment')->name('payment.')->group(function () {
     Route::get('/success/{payment}', [PaymentController::class, 'paymentSuccess'])->name('success');
     Route::get('/failed/{payment?}', [PaymentController::class, 'paymentFailed'])->name('failed');
     Route::get('/cancelled/{payment?}', [PaymentController::class, 'paymentCancelled'])->name('cancelled');
+
+    // Transferencia bancaria
+    Route::get('/transfer/{order}', [PaymentController::class, 'transferInstructions'])->name('transfer.instructions');
 });
 
 Route::get('/contacto', [HomeController::class, 'contact'])->name('contact');

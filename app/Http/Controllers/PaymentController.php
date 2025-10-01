@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\CheckoutService;
 use App\Services\TransbankService;
+use App\Settings\EcommerceSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -137,6 +140,30 @@ class PaymentController extends Controller
                 // Limpiar carrito y datos del checkout al completar el pago exitosamente
                 CheckoutService::markCheckoutComplete();
 
+                // Enviar correo de confirmación de orden
+                try {
+                    $order = $payment->order->load(['customer.user', 'items', 'shippingAddress', 'billingAddress']);
+                    $settings = app(EcommerceSettings::class);
+
+                    // Enviar confirmación al cliente
+                    Mail::to($order->customer->user->email)
+                        ->send(new OrderConfirmationMail($order));
+
+                    // Notificar a los administradores sobre la nueva orden
+                    if (! empty($settings->emails_notifications_orders)) {
+                        foreach ($settings->emails_notifications_orders as $adminEmail) {
+                            Mail::to($adminEmail)
+                                ->send(new OrderConfirmationMail($order));
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Log error but don't fail the payment process
+                    Log::error('Error enviando correo de confirmación de orden: '.$e->getMessage(), [
+                        'order_id' => $payment->order_id,
+                        'payment_id' => $payment->id,
+                    ]);
+                }
+
                 Log::info('Payment approved successfully', [
                     'payment_id' => $payment->id,
                     'order_id' => $payment->order_id,
@@ -210,18 +237,18 @@ class PaymentController extends Controller
             }
         }
 
-        // Buscar el pago por orden de compra si está disponible
+        // Buscar el pago por token o transaction_id
         $payment = null;
-        if ($buyOrder) {
-            $payment = Payment::whereHas('order', function ($query) use ($buyOrder) {
-                $query->where('id', $buyOrder);
-            })->first();
+        if ($token) {
+            $payment = Payment::where('token', $token)->first();
+        } elseif ($buyOrder) {
+            $payment = Payment::where('transaction_id', $buyOrder)->first();
+        }
 
-            if ($payment) {
-                $payment->update([
-                    'status' => Payment::STATUS_CANCELLED,
-                ]);
-            }
+        if ($payment) {
+            $payment->update([
+                'status' => Payment::STATUS_CANCELLED,
+            ]);
         }
 
         // Marcar checkout como fallido para mantener datos en sesión
@@ -257,5 +284,30 @@ class PaymentController extends Controller
     public function paymentCancelled(?Payment $payment = null)
     {
         return view('payment.cancelled', compact('payment'));
+    }
+
+    /**
+     * Mostrar instrucciones de transferencia bancaria
+     */
+    public function transferInstructions(Order $order, EcommerceSettings $settings)
+    {
+        // Validar que la orden sea de tipo transferencia
+        if ($order->payment_method !== 'transfer') {
+            return redirect()->route('home')->withErrors([
+                'payment' => 'Esta orden no corresponde a una transferencia bancaria.',
+            ]);
+        }
+
+        // Validar que la orden esté pendiente de pago
+        if ($order->payment_status !== Order::PAYMENT_STATUS_PENDING) {
+            return redirect()->route('home')->with('info', 'Esta orden ya ha sido procesada.');
+        }
+
+        return view('payment.transfer-instructions', [
+            'order' => $order->load(['customer.user', 'items', 'shippingAddress', 'billingAddress']),
+            'bankDetails' => $settings->bank_details,
+            'emailConfirmationPayment' => $settings->email_confirmation_payment,
+            'notificationEmails' => $settings->emails_notifications_orders,
+        ]);
     }
 }

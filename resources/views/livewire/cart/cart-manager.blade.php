@@ -34,7 +34,18 @@
                         <div class="col-md-4">
                             <h6 class="mb-1">{{ $item['product_name'] ?? 'Producto' }}</h6>
                             @if ($item['product_sku'] ?? null)
-                                <small class="sku-text">SKU: {{ $item['product_sku'] }}</small>
+                                <small class="sku-text d-block">SKU: {{ $item['product_sku'] }}</small>
+                            @endif
+
+                            {{-- Mostrar atributos seleccionados --}}
+                            @if (!empty($item['attributes']) && is_array($item['attributes']))
+                                <div class="product-attributes mt-1">
+                                    @foreach($item['attributes'] as $attributeName => $attributeValue)
+                                        <small class="badge bg-light text-dark me-1">
+                                            {{ $attributeName }}: {{ $attributeValue }}
+                                        </small>
+                                    @endforeach
+                                </div>
                             @endif
                         </div>
                         <div class="col-md-2">

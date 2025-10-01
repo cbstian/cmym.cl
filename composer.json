@@ -9,9 +9,13 @@
         "php": "^8.2",
         "binafy/laravel-cart": "^1.2",
         "filament/filament": "^4.0",
+        "filament/spatie-laravel-settings-plugin": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "opcodesio/log-viewer": "^3.19",
+        "spatie/laravel-settings": "^3.4",
+        "symfony/http-client": "^7.3",
+        "symfony/mailgun-mailer": "^7.3",
         "transbank/transbank-sdk": "^5.1"
     },
     "require-dev": {

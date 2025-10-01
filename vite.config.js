@@ -11,7 +11,6 @@ export default defineConfig({
                 'resources/css/filament/admin/theme.css',
                 // Bootstrap resources for frontend
                 'resources/js/bootstrap-app.js',
-                'resources/css/bootstrap.scss',
                 // Custom LESS styles
                 'resources/less/app.less',
                 // AOS (Animate On Scroll) library

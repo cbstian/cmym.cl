@@ -364,6 +364,53 @@
 }
 
 // ===============================
+// ATRIBUTOS DE PRODUCTO
+// ===============================
+.product-attributes {
+    .attribute-group {
+        margin-bottom: 1rem;
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: @gray-dark;
+        }
+
+        .form-select {
+            border: 2px solid @border-light;
+            border-radius: @border-radius-small;
+            .transition(border-color, 0.2s, ease);
+
+            &:focus {
+                border-color: @primary-green;
+                box-shadow: 0 0 0 0.2rem fade(@primary-green, 25%);
+            }
+        }
+
+        .badge {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.375em 0.75em;
+        }
+    }
+}
+
+// Atributos en el carrito
+.cart-item .product-attributes {
+    margin-top: 0.5rem;
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+        border: 1px solid @border-light;
+        background-color: @gray-light !important;
+        color: @gray-dark !important;
+    }
+}
+
+// ===============================
 // UTILIDADES ADICIONALES
 // ===============================
 .text-green {

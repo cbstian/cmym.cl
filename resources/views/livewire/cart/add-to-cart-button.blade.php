@@ -22,6 +22,34 @@
 
     {{-- Formulario de Compra --}}
     <form class="product-form" wire:submit.prevent="addToCart">
+        {{-- Atributos del Producto --}}
+        @if($product->attributes->count() > 0)
+            <div class="product-attributes mb-4">
+                @foreach($product->attributes as $attribute)
+                    <div class="attribute-group mb-3">
+                        <label class="form-label text-gray montserrat-600">
+                            {{ $attribute->name }}
+                            @if($attribute->is_required)
+                                <span class="text-danger">*</span>
+                            @endif
+                        </label>
+
+                        @if(count($attribute->values) > 0)
+                            <select
+                                class="form-select"
+                                wire:model.live="selectedAttributes.{{ $attribute->id }}"
+                                @if($attribute->is_required) required @endif>
+                                <option value="">Seleccionar {{ strtolower($attribute->name) }}</option>
+                                @foreach($attribute->values as $value)
+                                    <option value="{{ $value }}">{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="row align-items-start mb-4">
             {{-- Cantidad --}}
             <div class="col-auto">

@@ -235,6 +235,50 @@ it('persists checkout data in session using livewire session attributes', functi
     expect($newComponent->get('payment_method'))->toBe('webpay');
 });
 
+it('loads communes from session when region data is persisted', function () {
+    $region = Region::first();
+    if (! $region) {
+        $this->markTestSkipped('No hay regiones disponibles para el test');
+    }
+
+    $communes = $region->communesActive();
+    if (! $communes || $communes->isEmpty()) {
+        $this->markTestSkipped('No hay comunas disponibles para el test');
+    }
+    $commune = $communes->first();
+
+    // Simular datos guardados en sesión estableciendo los valores directamente
+    session([
+        'livewire.app.livewire.checkout.shipping_region_id' => $region->id,
+        'livewire.app.livewire.checkout.shipping_commune_id' => $commune->id,
+        'livewire.app.livewire.checkout.same_as_shipping' => false,
+        'livewire.app.livewire.checkout.billing_region_id' => $region->id,
+        'livewire.app.livewire.checkout.billing_commune_id' => $commune->id,
+    ]);
+
+    // Crear un nuevo componente que debería cargar las comunas desde la sesión
+    $component = Livewire::test(Checkout::class);
+
+    // Verificar que las regiones fueron recuperadas de la sesión
+    expect($component->get('shipping_region_id'))->toBe($region->id);
+    expect($component->get('billing_region_id'))->toBe($region->id);
+    expect($component->get('same_as_shipping'))->toBe(false);
+
+    // Verificar que las comunas se cargaron automáticamente
+    $loadedCommunes = $component->get('communes');
+    $loadedBillingCommunes = $component->get('billing_communes');
+
+    expect($loadedCommunes)->not->toBeEmpty();
+    expect($loadedBillingCommunes)->not->toBeEmpty();
+
+    // Verificar que las comunas cargadas contienen la comuna seleccionada
+    $communeIds = collect($loadedCommunes)->pluck('id');
+    $billingCommuneIds = collect($loadedBillingCommunes)->pluck('id');
+
+    expect($communeIds)->toContain($commune->id);
+    expect($billingCommuneIds)->toContain($commune->id);
+});
+
 it('clears checkout session data when checkout service marks as complete', function () {
     // Establecer algunos datos en la sesión simulando un checkout anterior
     session([

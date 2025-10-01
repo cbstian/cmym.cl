@@ -16,9 +16,9 @@
 
                     <p class="lead mb-4">Tu pago ha sido procesado correctamente.</p>
 
-                    @if($payment && $payment->gateway_response_json && isset($payment->gateway_response_json['commit_response']))
+                    @if($payment && $payment->response_data && !empty($payment->response_data))
                         @php
-                            $response = $payment->gateway_response_json['commit_response'];
+                            $response = $payment->response_data;
                         @endphp
 
                         <div class="row mb-4">
@@ -39,8 +39,8 @@
                                 <div class="card bg-light">
                                     <div class="card-body">
                                         <h6 class="card-title">Método de Pago</h6>
-                                        @if(isset($response['card_number']))
-                                            <p class="mb-1"><strong>Tarjeta:</strong> **** **** **** {{ $response['card_number'] }}</p>
+                                        @if(isset($response['card_detail']) && isset($response['card_detail']['card_number']))
+                                            <p class="mb-1"><strong>Tarjeta:</strong> **** **** **** {{ $response['card_detail']['card_number'] }}</p>
                                         @endif
                                         @if(isset($response['payment_type_code']))
                                             <p class="mb-1"><strong>Tipo:</strong>
@@ -78,10 +78,6 @@
                             <i class="fas fa-home me-2"></i>
                             Volver al Inicio
                         </a>
-                        <button class="btn btn-outline-primary" onclick="window.print()">
-                            <i class="fas fa-print me-2"></i>
-                            Imprimir Comprobante
-                        </button>
                     </div>
                 </div>
             </div>
