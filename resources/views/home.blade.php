@@ -29,7 +29,7 @@
     </div>
 </div>
 
-@livewire('product-grid', ['perPage' => 6, 'showTitle' => true])
+@livewire('product-grid', ['perPage' => 8, 'showTitle' => true])
 
 <div class="container-fluid bg-beige">
     <div class="container">
