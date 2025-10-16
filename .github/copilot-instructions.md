@@ -1,13 +1,14 @@
-# CMYM.CL E-commerce Platform Instructions
+# CMYM.CL E-commerce Platform
 
 ## Project Overview
-Laravel 12 e-commerce for Chilean market. **Hybrid frontend**: Bootstrap 5 for public pages, Filament v4 admin panel. Service-layer architecture for payments and checkout.
+Laravel 12 e-commerce for Chilean market with **hybrid frontend**: Bootstrap 5 for public storefront, Filament v4 admin panel. Service-layer architecture for payments and checkout.
 
 ## Stack
 - **Laravel 12** (streamlined structure - no `app/Http/Middleware/`, config in `bootstrap/app.php`)
-- **Filament 4.0.8** (admin), **Livewire 3.6.4** (interactivity), **Pest 3.8.4** (testing)
+- **Filament 4.0.8** (admin), **Livewire 3.6.4** (components), **Pest 3.8.4** (testing)
 - **Bootstrap 5 + TailwindCSS 4 + LESS** (multi-framework styling via Vite)
-- **Transbank WebPay Plus** (Chilean payment gateway)
+- **Transbank WebPay Plus** (Chilean payment gateway), **Binafy Laravel Cart** (session cart)
+- **Spatie Settings** (centralized config via Filament)
 
 ## Critical Architecture Patterns
 
@@ -20,25 +21,27 @@ app/Filament/Resources/
     Schemas/ProductForm.php      # Form definition (static configure())
     Tables/ProductsTable.php     # Table definition
     Pages/CreateProduct.php      # CRUD pages
-    RelationManagers/...
 ```
-**Pattern**: Resources call `ProductForm::configure($schema)`, NOT inline form definitions.
+**Pattern**: Resources call `ProductForm::configure($schema)`, NOT inline form definitions. Schemas use `Filament\Schemas\Components\Grid` for layout (v4 namespace change).
 
 ### Service Layer (Static Methods)
 Services are **stateless** with static methods for business logic:
 - `CheckoutService::markCheckoutComplete()` - Clears cart + session
-- `TransbankService::createTransaction()` - Returns array with `['success' => bool, 'payment' => Payment, ...]`
+- `TransbankService::createTransaction(Order $order, string $returnUrl): array` - Returns `['success' => bool, 'payment' => Payment, 'url' => string, 'token' => string]`
 
-**Key**: Services handle cross-cutting concerns (payments, checkout flow), NOT models or controllers.
+**Key**: Services handle cross-cutting concerns (payments, checkout flow), NOT models or controllers. Services construct Transbank SDK instances in `__construct()` using `config('services.transbank.*')`.
 
 ### Livewire Session Persistence
-Checkout form uses `#[Session]` attribute to persist across page loads:
+Checkout form uses `#[Session]` PHP attribute to persist across page loads:
 ```php
+use Livewire\Attributes\Session;
+use Livewire\Attributes\Validate;
+
 #[Session]
 #[Validate('required|email')]
 public $email = '';
 ```
-**Pattern**: User can refresh checkout page without losing form data. `CheckoutService::clearCheckoutSession()` cleans up all Livewire session keys.
+**Pattern**: User can refresh checkout page without losing form data. `CheckoutService::clearCheckoutSession()` cleans up all Livewire session keys by component name pattern (`app.livewire.checkout`).
 
 ### Route Model Binding by Slug
 Products resolved by slug, NOT id:
@@ -46,13 +49,20 @@ Products resolved by slug, NOT id:
 Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
 // Controller: Product::where('slug', $slug)->firstOrFail()
 ```
+**Why**: SEO-friendly URLs. All routes use semantic names (`product.show`, `payment.webpay.return`).
 
 ### Auto-Slug Generation (Model Observers)
 Products auto-generate unique slugs in `booted()` method:
 ```php
-static::creating(fn($product) => $product->slug = generateUniqueSlug($product->name));
-static::updating(fn($product) => /* only regen if name changed AND slug not manually set */);
+static::creating(fn($product) => $product->slug = static::generateUniqueSlug($product->name));
+static::updating(function($product) {
+    // Only regen if name changed AND slug not manually set
+    if ($product->isDirty('name') && !$product->isDirty('slug')) {
+        $product->slug = static::generateUniqueSlug($product->name, $product->id);
+    }
+});
 ```
+**Pattern**: Check `isDirty()` on update to preserve manual slug edits. Use counter suffix for conflicts (`mesa-comedor-2`).
 
 ### Cart Integration (Laravel Cart Package)
 Product model implements `Cartable` interface for cart compatibility.
@@ -125,10 +135,23 @@ public function mount($perPage = 8, $showTitle = true) { ... }
 - **TailwindCSS 4**: Filament admin only (`resources/css/app.css`)
 - **LESS**: Custom overrides (`resources/less/app.less`)
 - **SCSS**: Bootstrap compilation with deprecation silencing (see `vite.config.js`)
+- **AOS**: Animation library (`resources/js/aos-app.js`)
+
+**Why Hybrid**: Filament requires Tailwind. Public site uses Bootstrap for designer familiarity. Vite handles separate entry points.
 
 ### Composer Dev Script
 `composer run dev` starts **all** services concurrently: Laravel server, queue worker, Pail logs, Vite.
 Uses `npx concurrently` with color-coded output.
+
+**Commands**: `npm run dev` (Vite only), `npm run build` (production), `composer run dev` (full stack).
+
+### Spatie Settings Integration
+Centralized ecommerce config via Filament UI (`app/Settings/EcommerceSettings.php`):
+- `emails_notifications_orders` - Array of admin notification emails
+- `bank_details` - Transfer instructions shown to customers
+
+**Access**: `app(EcommerceSettings::class)->bank_details` OR `Order::getNotificationEmails()` helper methods.
+**Edit**: Filament admin → Configuración → Opciones.
 
 ### Debugging Tools (Laravel Boost MCP)
 - `mcp_laravel-boost_database-schema`: Inspect full DB schema
@@ -137,14 +160,18 @@ Uses `npx concurrently` with color-coded output.
 - `mcp_laravel-boost_last-error`: Recent backend errors
 - `mcp_laravel-boost_browser-logs`: Frontend console logs
 
+**Critical**: Always use `search-docs` tool BEFORE making changes. Pass package names as filter: `['laravel/framework', 'filament/filament']`.
+
 ### Testing Patterns
 ```php
-// Filament resource tests
+// Filament resource tests (use Livewire::test or livewire())
 livewire(CreateProduct::class)->fillForm([...])->call('create')->assertNotified();
 
 // Pest expectations
 expect($product->slug)->toBe('mesa-comedor');
+expect($product->price)->toBeNumeric();
 ```
+**Run targeted**: `php artisan test --filter=ProductSlug` after changes. Always test Filament resources via Livewire assertions.
 
 <laravel-boost-guidelines>
 ## Conventions

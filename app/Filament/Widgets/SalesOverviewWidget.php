@@ -44,23 +44,23 @@ class SalesOverviewWidget extends StatsOverviewWidget
             ->avg('total_amount') ?? 0;
 
         return [
-            Stat::make('Ventas del Mes', '$'.Number::format($currentMonthSales, locale: 'es'))
+            Stat::make('Ventas del Mes', '$'.Number::format($currentMonthSales, locale: 'es', precision: 0))
                 ->description(($salesChange >= 0 ? '+' : '').number_format($salesChange, 1).'% vs. mes anterior')
                 ->descriptionIcon($salesChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($salesChange >= 0 ? 'success' : 'danger')
                 ->chart($this->getMonthlyChart()),
 
-            Stat::make('Órdenes del Mes', Number::format($monthlyOrders, locale: 'es'))
+            Stat::make('Órdenes del Mes', Number::format($monthlyOrders, locale: 'es', precision: 0))
                 ->description('Total de órdenes')
                 ->descriptionIcon('heroicon-m-shopping-cart')
                 ->color('primary'),
 
-            Stat::make('Órdenes Pendientes', Number::format($pendingOrders, locale: 'es'))
+            Stat::make('Órdenes Pendientes', Number::format($pendingOrders, locale: 'es', precision: 0))
                 ->description('Requieren atención')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('Ticket Promedio', '$'.Number::format($averageOrderValue, locale: 'es'))
+            Stat::make('Ticket Promedio', '$'.Number::format($averageOrderValue, locale: 'es', precision: 0))
                 ->description('Valor promedio de orden')
                 ->descriptionIcon('heroicon-m-currency-dollar')
                 ->color('success'),

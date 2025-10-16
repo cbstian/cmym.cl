@@ -16,19 +16,11 @@
     "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-Bc4E1RYd.css",
+    "file": "assets/app-BsbpP0G2.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
       "app.css"
-    ]
-  },
-  "resources/css/bootstrap.scss": {
-    "file": "assets/bootstrap-Dq_oi5OS.css",
-    "src": "resources/css/bootstrap.scss",
-    "isEntry": true,
-    "names": [
-      "bootstrap.css"
     ]
   },
   "resources/css/filament/admin/theme.css": {
@@ -67,12 +59,12 @@
     "isEntry": true
   },
   "resources/js/bootstrap-app.js": {
-    "file": "assets/bootstrap-app-DSc6vrqL.js",
+    "file": "assets/bootstrap-app-p84kPlm9.js",
     "name": "bootstrap-app",
     "src": "resources/js/bootstrap-app.js",
     "isEntry": true,
     "css": [
-      "assets/bootstrap-Dq_oi5OS.css"
+      "assets/bootstrap-app-Dq_oi5OS.css"
     ],
     "assets": [
       "fonts/fa-brands-400.woff2",

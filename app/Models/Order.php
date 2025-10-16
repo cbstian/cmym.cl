@@ -22,6 +22,7 @@ class Order extends Model
         'currency',
         'payment_status',
         'payment_method',
+        'courier_company',
         'billing_address_id',
         'shipping_address_id',
         'notes',

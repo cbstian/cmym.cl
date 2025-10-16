@@ -15,6 +15,8 @@ class SalesChartWidget extends ChartWidget
 
     public ?string $filter = '30';
 
+    protected ?string $maxHeight = '500px';
+
     protected function getData(): array
     {
         $days = (int) $this->filter;

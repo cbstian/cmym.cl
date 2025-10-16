@@ -129,7 +129,7 @@
                             </label>
                             <select class="form-select @error('shipping_commune_id') is-invalid @enderror"
                                     id="shipping_commune_id"
-                                    wire:model="shipping_commune_id"
+                                    wire:model.live="shipping_commune_id"
                                     @if(empty($communes)) disabled @endif>
                                 <option value="">Selecciona una comuna</option>
                                 @foreach($communes as $commune)
@@ -168,6 +168,33 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        {{-- Selector de empresa courier (solo para regiones fuera de RM) --}}
+                        @if(!$isRegionRM && $shipping_region_id)
+                            <div class="col-12">
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Envío por pagar:</strong> El costo de envío se calculará y pagará al momento de recibir tu pedido.
+                                </div>
+                                <label for="courier_company" class="form-label">
+                                    Empresa Courier <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select @error('courier_company') is-invalid @enderror"
+                                        id="courier_company"
+                                        wire:model.live="courier_company">
+                                    <option value="">Selecciona una empresa de envío</option>
+                                    @foreach($courierCompanies as $company)
+                                        <option value="{{ $company }}">{{ $company }}</option>
+                                    @endforeach
+                                </select>
+                                @error('courier_company')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted d-block mt-1">
+                                    Selecciona la empresa courier de tu preferencia para recibir tu pedido.
+                                </small>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -341,10 +368,27 @@
                                     <span class="total-value">${{ number_format($subtotal, 0, ',', '.') }}</span>
                                 </div>
 
-                                @if($shipping_cost > 0)
-                                    <div class="total-row">
-                                        <span class="total-label">Envío:</span>
+                                <div class="total-row">
+                                    <span class="total-label">Envío:</span>
+                                    @if($shippingType === 'to_pay')
+                                        <span class="total-value text-info">
+                                            <small>Por pagar</small>
+                                        </span>
+                                    @elseif($shipping_cost > 0)
                                         <span class="total-value">${{ number_format($shipping_cost, 0, ',', '.') }}</span>
+                                    @else
+                                        <span class="total-value">
+                                            <small class="text-muted">Selecciona una región y comuna</small>
+                                        </span>
+                                    @endif
+                                </div>
+
+                                @if($shippingType === 'to_pay' && $courier_company)
+                                    <div class="total-row">
+                                        <span class="total-label">Courier:</span>
+                                        <span class="total-value">
+                                            <small>{{ $courier_company }}</small>
+                                        </span>
                                     </div>
                                 @endif
 
@@ -352,6 +396,15 @@
                                     <span class="total-label">Total:</span>
                                     <span class="total-value">${{ number_format($total, 0, ',', '.') }}</span>
                                 </div>
+
+                                @if($shippingType === 'to_pay')
+                                    <div class="alert alert-sm alert-info mt-2 mb-0 p-2">
+                                        <small>
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            El costo de envío se pagará al recibir el pedido.
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="row pt-4">

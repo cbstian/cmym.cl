@@ -25,13 +25,19 @@ class TopProductsWidget extends TableWidget
             ->limit(10)
             ->pluck('total_quantity', 'product_id');
 
+        $query = Product::query();
+
+        if ($topProductIds->isNotEmpty()) {
+            $query->whereIn('id', $topProductIds->keys())
+                ->orderByRaw('FIELD(id, '.implode(',', $topProductIds->keys()->toArray()).')');
+        } else {
+            // Si no hay productos vendidos, retornar query vacía
+            $query->whereRaw('0 = 1');
+        }
+
         return $table
             ->heading('Productos Más Vendidos')
-            ->query(
-                Product::query()
-                    ->whereIn('id', $topProductIds->keys())
-                    ->orderByRaw('FIELD(id, '.implode(',', $topProductIds->keys()->toArray()).')')
-            )
+            ->query($query)
             ->columns([
                 ImageColumn::make('image_primary_path')
                     ->label('Imagen')

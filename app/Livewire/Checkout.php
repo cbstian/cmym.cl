@@ -90,6 +90,11 @@ class Checkout extends Component
     #[Validate('required|in:webpay,transfer')]
     public $payment_method = 'webpay';
 
+    // Empresa courier para envíos fuera de RM - persistido en sesión
+    #[Session]
+    #[Validate('required_if:isRegionRM,false|nullable|string')]
+    public $courier_company = '';
+
     // Datos para el componente
     public $cartItems = [];
 
@@ -98,6 +103,12 @@ class Checkout extends Component
     public $communes = [];
 
     public $billing_communes = [];
+
+    public $courierCompanies = [];
+
+    public $isRegionRM = false;
+
+    public $shippingType = 'fixed'; // 'fixed' para RM, 'to_pay' para otras regiones
 
     public $subtotal = 0;
 
@@ -112,6 +123,8 @@ class Checkout extends Component
         $this->loadCart();
         $this->loadRegions();
         $this->loadCommunesFromSession();
+        $this->loadCourierCompanies();
+        $this->checkIfRegionIsRM();
         $this->calculateTotals();
 
         // Verificar si el pago anterior falló
@@ -137,9 +150,18 @@ class Checkout extends Component
             $region = Region::find($regionId);
             if ($region) {
                 $this->communes = $region->communesActive();
+                $this->isRegionRM = $region->abbreviation === 'RM';
+                $this->shippingType = $this->isRegionRM ? 'fixed' : 'to_pay';
             }
         }
 
+        $this->calculateShippingCost();
+
+        $this->calculateTotals();
+    }
+
+    public function updatedShippingCommuneId(): void
+    {
         $this->calculateTotals();
     }
 
@@ -252,6 +274,7 @@ class Checkout extends Component
                     'currency' => 'CLP',
                     'payment_status' => 'pending',
                     'payment_method' => $this->payment_method,
+                    'courier_company' => ! $this->isRegionRM ? $this->courier_company : null,
                     'billing_address_id' => $billingAddress->id,
                     'shipping_address_id' => $shippingAddress->id,
                     'notes' => $this->order_notes,
@@ -460,16 +483,52 @@ class Checkout extends Component
             return 0;
         }
 
-        // Lógica simple de envío - en el futuro puede ser más compleja
         $region = Region::find($this->shipping_region_id);
 
         if (! $region) {
             return 0;
         }
 
+        // Si es Región Metropolitana, usar costos por comuna
+        if ($region->abbreviation === 'RM') {
+            if (! $this->shipping_commune_id) {
+                return 0;
+            }
+
+            $settings = app(EcommerceSettings::class);
+            $tempShippingCostsRM = $settings->shipping_costs_rm ?? [];
+            $shippingCostsRM = [];
+
+            if (count($tempShippingCostsRM) > 0 AND is_array($tempShippingCostsRM)) {
+                foreach($tempShippingCostsRM as $entry) {
+                    if (isset($entry['commune_id']) && isset($entry['cost'])) {
+                        $shippingCostsRM[$entry['commune_id']] = $entry['cost'];
+                    }
+                }
+            }
+
+            return $shippingCostsRM[$this->shipping_commune_id] ?? 10000; // Default 10000 si no está configurado
+        }
+
+        // Para otras regiones, el costo es "por pagar" (se muestra $0 en el checkout)
         return 0;
-        // Ejemplo: Región Metropolitana = $5000, otras regiones = $8000
-        // return $region->code === 'RM' ? 5000 : 8000;
+    }
+
+    private function loadCourierCompanies(): void
+    {
+        $settings = app(EcommerceSettings::class);
+        $this->courierCompanies = $settings->courier_companies ?? [];
+    }
+
+    private function checkIfRegionIsRM(): void
+    {
+        if ($this->shipping_region_id) {
+            $region = Region::find($this->shipping_region_id);
+            if ($region) {
+                $this->isRegionRM = $region->abbreviation === 'RM';
+                $this->shippingType = $this->isRegionRM ? 'fixed' : 'to_pay';
+            }
+        }
     }
 
     private function generateOrderNumber(): string

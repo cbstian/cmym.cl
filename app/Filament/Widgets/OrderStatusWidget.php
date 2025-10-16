@@ -12,6 +12,8 @@ class OrderStatusWidget extends ChartWidget
 
     protected static ?int $sort = 6;
 
+    protected ?string $maxHeight = '400px';
+
     protected function getData(): array
     {
         $statuses = Order::select('status', DB::raw('COUNT(*) as count'))

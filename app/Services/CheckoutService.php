@@ -51,7 +51,7 @@ class CheckoutService
             'name', 'email', 'phone', 'rut', 'company_name',
             'shipping_region_id', 'shipping_commune_id', 'shipping_address_line_1', 'shipping_address_line_2',
             'same_as_shipping', 'billing_region_id', 'billing_commune_id', 'billing_address_line_1', 'billing_address_line_2',
-            'order_notes', 'payment_method',
+            'order_notes', 'payment_method', 'courier_company',
         ];
 
         // Limpiar cada propiedad de sesión

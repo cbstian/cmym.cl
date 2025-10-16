@@ -12,6 +12,8 @@ class PaymentMethodsWidget extends ChartWidget
 
     protected static ?int $sort = 5;
 
+    protected ?string $maxHeight = '400px';
+
     protected function getData(): array
     {
         $paymentMethods = Order::select('payment_method', DB::raw('SUM(total_amount) as total'))

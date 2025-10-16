@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             FaqSeeder::class,
             LocationSeeder::class,
+            ShippingCostsRmSeeder::class,
         ]);
     }
 }

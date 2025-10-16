@@ -269,27 +269,35 @@
             <div class="section-title">💰 Resumen de Costos</div>
             <div class="total-section">
                 <div class="total-row">
-                    <span>Subtotal:</span>
+                    <span>Subtotal:&nbsp;</span>
                     <span>${{ number_format($order->subtotal, 0, ',', '.') }}</span>
                 </div>
                 <div class="total-row">
-                    <span>Envío:</span>
+                    <span>Envío:&nbsp;</span>
                     <span>
                         @if($order->shipping_cost > 0)
                             ${{ number_format($order->shipping_cost, 0, ',', '.') }}
+                        @elseif($order->courier_company)
+                            Por pagar
                         @else
                             Gratis
                         @endif
                     </span>
                 </div>
+                @if($order->courier_company)
+                    <div class="total-row">
+                        <span>Empresa envío:&nbsp;</span>
+                        <span>{{ $order->courier_company }}</span>
+                    </div>
+                @endif
                 @if($order->discount_amount > 0)
                 <div class="total-row">
-                    <span>Descuento:</span>
+                    <span>Descuento:&nbsp;</span>
                     <span>-${{ number_format($order->discount_amount, 0, ',', '.') }}</span>
                 </div>
                 @endif
                 <div class="total-row final">
-                    <span>Total:</span>
+                    <span>Total:&nbsp;</span>
                     <span>${{ number_format($order->total_amount, 0, ',', '.') }}</span>
                 </div>
             </div>
