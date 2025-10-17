@@ -118,8 +118,6 @@ class Options extends SettingsPage
                                     ->label('Comuna')
                                     ->options($rmCommunes)
                                     ->required()
-                                    ->searchable()
-                                    ->disabled()
                                     ->distinct()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
 
