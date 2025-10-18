@@ -11,22 +11,52 @@
 
 @section('content')
 
-<div class="container-fluid bg-white">
-    <div class="container banner-home">
-        <div class="row py-4 py-lg-5">
-            <div class="col-md-12 px-0 py-4 py-lg-5" data-aos="fade-right" data-aos-duration="1000">
-                <h2 class="montserrat-900 mb-0">ENCUENTRA LO MEJOR</h2>
-                <h1 class="montserrat-900">PARA TU HOGAR</h1>
-                <p class="font-size-16">
-                    Encuentra sillas, mesas y la mejor iluminación.<br>
-                    La terraza de tus sueños al alcance de un clic.
-                </p>
-                <a href="{{ route('products') }}" class="btn btn-primary-green text-white montserrat-600" data-aos="zoom-in" data-aos-delay="200">
-                    <i class="fas fa-eye me-2"></i>Ver más
-                </a>
-            </div>
+<div class="container-fluid">
+    @if($banners->isNotEmpty())
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            @foreach($banners as $index => $banner)
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ $index }}"
+                class="{{ $index === 0 ? 'active' : '' }}"
+                aria-current="{{ $index === 0 ? 'true' : 'false' }}"
+                aria-label="Slide {{ $index + 1 }}"></button>
+            @endforeach
         </div>
+        <div class="carousel-inner">
+            @foreach($banners as $index => $banner)
+            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                @if($banner->link)
+                    <a href="{{ $banner->link }}" {{ $banner->open_new_tab ? 'target="_blank" rel="noopener noreferrer"' : '' }}>
+                        <picture>
+                            @if($banner->mobile_image)
+                            <source media="(max-width: 768px)" srcset="{{ Storage::url($banner->mobile_image) }}">
+                            @endif
+                            <img src="{{ Storage::url($banner->desktop_image) }}" class="d-block w-100" alt="{{ $banner->name }}">
+                        </picture>
+                    </a>
+                @else
+                    <picture>
+                        @if($banner->mobile_image)
+                        <source media="(max-width: 768px)" srcset="{{ Storage::url($banner->mobile_image) }}">
+                        @endif
+                        <img src="{{ Storage::url($banner->desktop_image) }}" class="d-block w-100" alt="{{ $banner->name }}">
+                    </picture>
+                @endif
+            </div>
+            @endforeach
+        </div>
+        @if($banners->count() > 1)
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+        @endif
     </div>
+    @endif
 </div>
 
 @livewire('product-grid', ['perPage' => 8, 'showTitle' => true])

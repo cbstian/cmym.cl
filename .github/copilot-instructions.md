@@ -1,14 +1,15 @@
 # CMYM.CL E-commerce Platform
 
 ## Project Overview
-Laravel 12 e-commerce for Chilean market with **hybrid frontend**: Bootstrap 5 for public storefront, Filament v4 admin panel. Service-layer architecture for payments and checkout.
+Laravel 12 e-commerce for Chilean market with **hybrid frontend**: Bootstrap 5 for public storefront, Filament v4 admin panel. Service-layer architecture for payments and checkout. Uses MySQL database with comprehensive Chilean geography support (regions → provinces → communes).
 
 ## Stack
-- **Laravel 12** (streamlined structure - no `app/Http/Middleware/`, config in `bootstrap/app.php`)
+- **Laravel 12.28.1** (streamlined structure - no `app/Http/Middleware/`, config in `bootstrap/app.php`)
 - **Filament 4.0.8** (admin), **Livewire 3.6.4** (components), **Pest 3.8.4** (testing)
 - **Bootstrap 5 + TailwindCSS 4 + LESS** (multi-framework styling via Vite)
 - **Transbank WebPay Plus** (Chilean payment gateway), **Binafy Laravel Cart** (session cart)
 - **Spatie Settings** (centralized config via Filament)
+- **PHP 8.4.13** with constructor property promotion and attributes
 
 ## Critical Architecture Patterns
 
@@ -102,9 +103,11 @@ php artisan test tests/Feature/ProductResourceTest.php
 
 ### Chilean Market Integration
 - **Payment**: Transbank WebPay Plus (see `TransbankService::createTransaction()`)
-- **Geography**: `regions` → `communes` tables for addresses
+- **Geography**: 3-tier hierarchy `regions` → `provinces` → `communes` for addresses
 - **Validation**: RUT (Chilean tax ID) validation for customers
-- **Currency**: CLP (Chilean pesos) stored as `decimal:2`
+- **Currency**: CLP (Chilean pesos) - stored as **integers** (cents) in database (`subtotal`, `total_amount`, `shipping_cost`)
+- **Shipping**: Region-specific costs via `EcommerceSettings::shipping_costs_rm` for Metropolitan Region, courier companies for other regions
+- **Email**: Mailgun configured for transactional emails (order confirmations, transfer instructions)
 
 ### Model Casts Convention (Laravel 12)
 Use `casts()` method, NOT `$casts` property:
@@ -112,6 +115,16 @@ Use `casts()` method, NOT `$casts` property:
 protected function casts(): array {
     return ['image_paths' => 'array', 'price' => 'decimal:2'];
 }
+```
+
+### Money Handling (Critical)
+Database stores money as **integers** (cents in CLP). Models cast to integer:
+```php
+// Order model
+protected function casts(): array {
+    return ['subtotal' => 'integer', 'total_amount' => 'integer', 'shipping_cost' => 'integer'];
+}
+// Product prices use decimal:2 for display, but payments/orders use integers
 ```
 
 ### Route Naming
@@ -139,19 +152,31 @@ public function mount($perPage = 8, $showTitle = true) { ... }
 
 **Why Hybrid**: Filament requires Tailwind. Public site uses Bootstrap for designer familiarity. Vite handles separate entry points.
 
+**Vite Config Note**: SCSS preprocessor configured with `silenceDeprecations` and `api: 'modern-compiler'` to suppress Bootstrap warnings. Font files preserved in `fonts/` directory during build.
+
 ### Composer Dev Script
 `composer run dev` starts **all** services concurrently: Laravel server, queue worker, Pail logs, Vite.
 Uses `npx concurrently` with color-coded output.
 
 **Commands**: `npm run dev` (Vite only), `npm run build` (production), `composer run dev` (full stack).
 
+## Available Documentation
+Project-specific docs in `/docs/`:
+- `ECOMMERCE_SETTINGS.md` - Spatie Settings configuration
+- `MAILGUN_SETUP.md` - Email configuration
+- `SALES_DASHBOARD.md` - Admin panel features
+- `SHIPPING_COSTS.md` - Chilean shipping logic
+
 ### Spatie Settings Integration
 Centralized ecommerce config via Filament UI (`app/Settings/EcommerceSettings.php`):
 - `emails_notifications_orders` - Array of admin notification emails
 - `bank_details` - Transfer instructions shown to customers
+- `shipping_costs_rm` - Array mapping commune_id to shipping cost (CLP) for Metropolitan Region
+- `courier_companies` - Array of courier company names for non-RM regions
 
 **Access**: `app(EcommerceSettings::class)->bank_details` OR `Order::getNotificationEmails()` helper methods.
 **Edit**: Filament admin → Configuración → Opciones.
+**Pattern**: Settings stored in DB (`settings` table), NOT config files. Use for runtime-editable values.
 
 ### Debugging Tools (Laravel Boost MCP)
 - `mcp_laravel-boost_database-schema`: Inspect full DB schema
@@ -173,7 +198,50 @@ expect($product->price)->toBeNumeric();
 ```
 **Run targeted**: `php artisan test --filter=ProductSlug` after changes. Always test Filament resources via Livewire assertions.
 
+## Critical Conventions
+
+### Database Schema Notes
+- `orders.subtotal`, `orders.total_amount`, `orders.shipping_cost` - **Integers** (cents in CLP)
+- `payments.amount` - **Integer** (cents in CLP)
+- `order_items.unit_price`, `order_items.total_price` - **Integers** (cents in CLP)
+- `products.price`, `products.sale_price` - **Decimal(10,2)** for display
+- Chilean geography: `regions.id` → `provinces.region_id` → `communes.province_id`
+
+### Service Layer Pattern
+Services are **stateless** utility classes with static methods. They construct SDK instances (e.g., Transbank) in `__construct()`:
+```php
+// CheckoutService - Handles cart/session cleanup
+CheckoutService::markCheckoutComplete(); // Clears cart + Livewire session
+CheckoutService::clearCheckoutSession(); // Removes all #[Session] properties by component name
+
+// TransbankService - Payment gateway integration
+$result = TransbankService::createTransaction($order, $returnUrl);
+// Returns: ['success' => bool, 'payment' => Payment, 'url' => string, 'token' => string]
+```
+Services read from `config('services.*')`, never use `env()` directly.
+
 <laravel-boost-guidelines>
+=== foundation rules ===
+
+# Laravel Boost Guidelines
+
+The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to enhance the user's satisfaction building Laravel applications.
+
+## Foundational Context
+This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+
+- php - 8.4.13
+- filament/filament (FILAMENT) - v4
+- laravel/framework (LARAVEL) - v12
+- laravel/prompts (PROMPTS) - v0
+- livewire/livewire (LIVEWIRE) - v3
+- laravel/pint (PINT) - v1
+- laravel/sail (SAIL) - v1
+- pestphp/pest (PEST) - v3
+- phpunit/phpunit (PHPUNIT) - v11
+- tailwindcss (TAILWINDCSS) - v4
+
+
 ## Conventions
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
@@ -441,7 +509,7 @@ Forms\Components\Select::make('user_id')
 
 ## Livewire Core
 - Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `php artisan make:livewire [Posts\\CreatePost]` artisan command to create new components
+- Use the `php artisan make:livewire [Posts\CreatePost]` artisan command to create new components
 - State should live on the server, with the UI reflecting it.
 - All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
 
@@ -640,4 +708,12 @@ it('has emails', function (string $email) {
 | overflow-ellipsis | text-ellipsis |
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
+
+
+=== tests rules ===
+
+## Test Enforcement
+
+- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
 </laravel-boost-guidelines>
